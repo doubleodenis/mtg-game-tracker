@@ -21,7 +21,6 @@ type ProfileRow = {
 type ParticipationRow = {
   is_winner: boolean;
   commander_name: string | null;
-  commander_image_uri: string | null;
   match: {
     id: string;
     format: string;
@@ -54,7 +53,6 @@ async function getUserStats(userId: string) {
     .select(`
       is_winner,
       commander_name,
-      commander_image_uri,
       match:match_id (
         id,
         format,
@@ -63,6 +61,18 @@ async function getUserStats(userId: string) {
     `)
     .eq("user_id", userId)
     .order("match(date_played)", { ascending: false });
+
+  // Fetch commander images from user_commanders
+  const { data: userCommanders } = await supabase
+    .from("user_commanders")
+    .select("card_name, card_image_uri")
+    .eq("user_id", userId);
+
+  // Create a map of commander_name -> image
+  const commanderImageMap = new Map<string, string | null>();
+  (userCommanders || []).forEach((uc: { card_name: string; card_image_uri: string | null }) => {
+    commanderImageMap.set(uc.card_name, uc.card_image_uri);
+  });
 
   if (!participations) {
     return {
@@ -94,18 +104,19 @@ async function getUserStats(userId: string) {
     }
   }
 
-  // Commander stats
+  // Commander stats - use images from user_commanders
   const commanderCounts = new Map<string, { name: string; image: string | null; wins: number; total: number }>();
   typedParticipations.forEach((p) => {
     if (p.commander_name) {
       const existing = commanderCounts.get(p.commander_name);
+      const image = commanderImageMap.get(p.commander_name) || null;
       if (existing) {
         existing.total++;
         if (p.is_winner) existing.wins++;
       } else {
         commanderCounts.set(p.commander_name, {
           name: p.commander_name,
-          image: p.commander_image_uri,
+          image: image,
           wins: p.is_winner ? 1 : 0,
           total: 1,
         });

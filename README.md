@@ -66,14 +66,15 @@ npm install
 2. Click **New Query**
 3. Copy the contents of `supabase/migrations/001_initial_schema.sql`
 4. Paste into the editor and click **Run**
-5. Verify tables were created in **Table Editor**
+5. Run `supabase/migrations/002_group_matches_pivot.sql` for playlist-style groups
+6. Verify tables were created in **Table Editor**
 
 Expected tables:
 - `profiles`
 - `user_commanders`
 - `friendships`
 - `groups`
-- `group_members`
+- `group_matches` (many-to-many: groups ↔ matches)
 - `matches`
 - `match_participants`
 - `guest_participants`

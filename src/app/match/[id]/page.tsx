@@ -89,6 +89,19 @@ async function getParticipants(matchId: string) {
   const typedRegistered = (registered || []) as unknown as RegisteredParticipantRow[];
   const typedGuests = (guests || []) as unknown as GuestParticipantRow[];
 
+  // Fetch commander images from user_commanders for registered users
+  const userIds = typedRegistered.map((p) => p.user_id);
+  const { data: userCommanders } = await supabase
+    .from("user_commanders")
+    .select("user_id, card_name, card_image_uri")
+    .in("user_id", userIds);
+
+  // Create a map of user_id + commander_name -> image
+  const commanderImageMap = new Map<string, string | null>();
+  (userCommanders || []).forEach((uc: { user_id: string; card_name: string; card_image_uri: string | null }) => {
+    commanderImageMap.set(`${uc.user_id}:${uc.card_name}`, uc.card_image_uri);
+  });
+
   const participants: Array<{
     id: string;
     name: string;
@@ -104,6 +117,10 @@ async function getParticipants(matchId: string) {
 
   typedRegistered.forEach((p) => {
     const profile = p.profiles;
+    // Look up commander image from user_commanders
+    const commanderImage = p.commander_name 
+      ? commanderImageMap.get(`${p.user_id}:${p.commander_name}`) || p.commander_image_uri
+      : p.commander_image_uri;
 
     participants.push({
       id: p.user_id,
@@ -111,7 +128,7 @@ async function getParticipants(matchId: string) {
       username: profile?.username,
       avatar_url: profile?.avatar_url || null,
       commander_name: p.commander_name,
-      commander_image_uri: p.commander_image_uri,
+      commander_image_uri: commanderImage,
       team: p.team,
       placement: p.placement,
       is_winner: p.is_winner,
