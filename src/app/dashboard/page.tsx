@@ -108,79 +108,87 @@ export default async function DashboardPage() {
   const data = await getDashboardData(user.id);
 
   return (
-    <div className="space-y-8">
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {/* Welcome Header */}
       <div>
-        <h1 className="text-2xl font-bold mb-2">
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem", color: "#ffffff" }}>
           Welcome back, {profile?.display_name || profile?.username || "Commander"}!
         </h1>
-        <p className="text-foreground-muted">
+        <p style={{ color: "#a1a1aa" }}>
           Here&apos;s what&apos;s happening with your matches.
         </p>
       </div>
 
       {/* Quick Actions */}
-      <div className="flex flex-wrap gap-4">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
         <Link href="/dashboard/matches/new">
           <Button>
-            <span className="mr-2">⚔️</span>
+            <span style={{ marginRight: "0.5rem" }}>⚔️</span>
             Record New Match
           </Button>
         </Link>
         <Link href="/dashboard/commanders">
           <Button variant="secondary">
-            <span className="mr-2">👑</span>
+            <span style={{ marginRight: "0.5rem" }}>👑</span>
             Manage Commanders
           </Button>
         </Link>
         <Link href="/dashboard/friends">
           <Button variant="secondary">
-            <span className="mr-2">👥</span>
+            <span style={{ marginRight: "0.5rem" }}>👥</span>
             Find Friends
           </Button>
         </Link>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(2, 1fr)", 
+        gap: "1rem" 
+      }} className="lg:grid-cols-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-3xl font-bold text-accent">{data.winRate}%</div>
-            <div className="text-sm text-foreground-muted">Win Rate</div>
+          <CardContent style={{ padding: "1.5rem" }}>
+            <div style={{ fontSize: "1.875rem", fontWeight: 700, color: "#a855f7" }}>{data.winRate}%</div>
+            <div style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Win Rate</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-3xl font-bold">{data.totalMatches}</div>
-            <div className="text-sm text-foreground-muted">Matches Played</div>
+          <CardContent style={{ padding: "1.5rem" }}>
+            <div style={{ fontSize: "1.875rem", fontWeight: 700, color: "#ffffff" }}>{data.totalMatches}</div>
+            <div style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Matches Played</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-3xl font-bold">{data.friendCount}</div>
-            <div className="text-sm text-foreground-muted">Friends</div>
+          <CardContent style={{ padding: "1.5rem" }}>
+            <div style={{ fontSize: "1.875rem", fontWeight: 700, color: "#ffffff" }}>{data.friendCount}</div>
+            <div style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Friends</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-3xl font-bold">{data.commanderCount}</div>
-            <div className="text-sm text-foreground-muted">Commanders</div>
+          <CardContent style={{ padding: "1.5rem" }}>
+            <div style={{ fontSize: "1.875rem", fontWeight: 700, color: "#ffffff" }}>{data.commanderCount}</div>
+            <div style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>Commanders</div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "1fr", 
+        gap: "1.5rem" 
+      }} className="lg:grid-cols-2">
         {/* Recent Matches */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+          <CardHeader style={{ padding: "1.25rem", paddingBottom: "0.75rem" }}>
+            <CardTitle style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               Recent Matches
               <Link href={`/player/${profile?.username}`}>
                 <Button variant="ghost" size="sm">View All</Button>
               </Link>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent style={{ padding: "1.25rem", paddingTop: "0", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {data.recentMatches.length > 0 ? (
               data.recentMatches.slice(0, 5).map((m) => {
                 const match = m.match as { id: string; format: string; date_played: string };
@@ -188,28 +196,35 @@ export default async function DashboardPage() {
                   <Link
                     key={match.id}
                     href={`/match/${match.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg bg-surface hover:bg-surface-hover transition-colors"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.75rem",
+                      borderRadius: "0.5rem",
+                      backgroundColor: "rgba(255, 255, 255, 0.03)",
+                    }}
                   >
-                    <div className="flex items-center gap-3">
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                       <Badge variant={m.is_winner ? "win" : "loss"}>
                         {m.is_winner ? "WIN" : "LOSS"}
                       </Badge>
                       <div>
-                        <div className="text-sm font-medium">{match.format} Commander</div>
+                        <div style={{ fontSize: "0.875rem", fontWeight: 500, color: "#ffffff" }}>{match.format} Commander</div>
                         {m.commander_name && (
-                          <div className="text-xs text-foreground-muted">{m.commander_name}</div>
+                          <div style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>{m.commander_name}</div>
                         )}
                       </div>
                     </div>
-                    <div className="text-xs text-foreground-muted">
+                    <div style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>
                       {formatRelativeTime(match.date_played)}
                     </div>
                   </Link>
                 );
               })
             ) : (
-              <div className="text-center py-8 text-foreground-muted">
-                <p className="mb-4">No matches recorded yet.</p>
+              <div style={{ textAlign: "center", padding: "2rem 0", color: "#a1a1aa" }}>
+                <p style={{ marginBottom: "1rem" }}>No matches recorded yet.</p>
                 <Link href="/dashboard/matches/new">
                   <Button>Record Your First Match</Button>
                 </Link>
@@ -220,15 +235,15 @@ export default async function DashboardPage() {
 
         {/* Friend Requests */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+          <CardHeader style={{ padding: "1.25rem", paddingBottom: "0.75rem" }}>
+            <CardTitle style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               Friend Requests
               {data.pendingRequests.length > 0 && (
                 <Badge>{data.pendingRequests.length}</Badge>
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent style={{ padding: "1.25rem", paddingTop: "0", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {data.pendingRequests.length > 0 ? (
               data.pendingRequests.map((request) => {
                 const requester = request.requester as {
@@ -239,22 +254,38 @@ export default async function DashboardPage() {
                 return (
                   <div
                     key={request.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-surface"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.75rem",
+                      borderRadius: "0.5rem",
+                      backgroundColor: "rgba(255, 255, 255, 0.03)",
+                    }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-surface-hover flex items-center justify-center text-foreground-muted">
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      <div style={{ 
+                        height: "2.5rem", 
+                        width: "2.5rem", 
+                        borderRadius: "50%", 
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#a1a1aa",
+                      }}>
                         {requester.username.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-medium">
+                        <div style={{ fontWeight: 500, color: "#ffffff" }}>
                           {requester.display_name || requester.username}
                         </div>
-                        <div className="text-xs text-foreground-muted">
+                        <div style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>
                           @{requester.username}
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
                       <Button size="sm">Accept</Button>
                       <Button size="sm" variant="ghost">Decline</Button>
                     </div>
@@ -262,9 +293,9 @@ export default async function DashboardPage() {
                 );
               })
             ) : (
-              <div className="text-center py-8 text-foreground-muted">
+              <div style={{ textAlign: "center", padding: "2rem 0", color: "#a1a1aa" }}>
                 <p>No pending friend requests.</p>
-                <Link href="/dashboard/friends" className="text-accent hover:underline text-sm">
+                <Link href="/dashboard/friends" style={{ color: "#a855f7", fontSize: "0.875rem" }}>
                   Find friends to add
                 </Link>
               </div>

@@ -16,13 +16,16 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ minHeight: "100vh", backgroundColor: "#0a0a12" }}>
       <Navbar />
       
       {/* Dashboard Navigation */}
-      <nav className="border-b border-surface-border bg-background-secondary">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-6 overflow-x-auto">
+      <nav style={{ 
+        borderBottom: "1px solid rgba(255, 255, 255, 0.1)", 
+        backgroundColor: "#0f0f1a" 
+      }}>
+        <div style={{ maxWidth: "72rem", margin: "0 auto", padding: "0 1rem" }}>
+          <div style={{ display: "flex", gap: "1.5rem", overflowX: "auto" }}>
             <NavLink href="/dashboard">Overview</NavLink>
             <NavLink href="/dashboard/matches/new">New Match</NavLink>
             <NavLink href="/dashboard/commanders">Commanders</NavLink>
@@ -33,7 +36,7 @@ export default async function DashboardLayout({
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 py-8">
+      <main style={{ maxWidth: "72rem", margin: "0 auto", padding: "2rem 1rem" }}>
         {children}
       </main>
     </div>
@@ -44,7 +47,14 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="py-3 px-1 text-sm text-foreground-muted hover:text-foreground border-b-2 border-transparent hover:border-accent transition-colors whitespace-nowrap"
+      style={{
+        padding: "0.75rem 0.25rem",
+        fontSize: "0.875rem",
+        color: "#a1a1aa",
+        borderBottom: "2px solid transparent",
+        whiteSpace: "nowrap",
+        textDecoration: "none",
+      }}
     >
       {children}
     </Link>
