@@ -79,8 +79,23 @@ export function CommanderPicker({
   if (value) {
     return (
       <div className={cn("relative", className)}>
-        <div className="flex items-center gap-3 p-3 glass-card">
-          <div className="relative h-16 w-12 rounded overflow-hidden flex-shrink-0">
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          padding: "0.75rem",
+          backgroundColor: "rgba(255, 255, 255, 0.03)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "0.5rem",
+        }}>
+          <div style={{
+            position: "relative",
+            height: "4rem",
+            width: "3rem",
+            borderRadius: "0.25rem",
+            overflow: "hidden",
+            flexShrink: 0,
+          }}>
             <Image
               src={value.image_uri}
               alt={value.name}
@@ -88,18 +103,33 @@ export function CommanderPicker({
               className="object-cover"
             />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-medium text-foreground truncate">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              fontWeight: 500,
+              color: "#ffffff",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}>
               {value.name}
             </div>
           </div>
           <button
             type="button"
             onClick={handleClear}
-            className="p-2 text-foreground-muted hover:text-foreground transition-colors"
+            style={{
+              padding: "0.5rem",
+              color: "#a1a1aa",
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "pointer",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "#ffffff"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "#a1a1aa"}
           >
             <svg
-              className="h-5 w-5"
+              style={{ height: "1.25rem", width: "1.25rem" }}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -119,7 +149,7 @@ export function CommanderPicker({
 
   return (
     <div className={cn("relative", className)}>
-      <div className="relative">
+      <div style={{ position: "relative" }}>
         <Input
           ref={inputRef}
           type="text"
@@ -130,14 +160,40 @@ export function CommanderPicker({
           placeholder={placeholder}
         />
         {isLoading && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          <div style={{
+            position: "absolute",
+            right: "0.75rem",
+            top: "50%",
+            transform: "translateY(-50%)",
+          }}>
+            <div style={{
+              height: "1rem",
+              width: "1rem",
+              borderRadius: "50%",
+              border: "2px solid #a855f7",
+              borderTopColor: "transparent",
+              animation: "spin 1s linear infinite",
+            }} />
           </div>
         )}
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-background-secondary border border-surface-border rounded-lg shadow-xl overflow-hidden z-50 max-h-80 overflow-y-auto">
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          right: 0,
+          marginTop: "0.5rem",
+          backgroundColor: "rgba(18, 18, 26, 0.98)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "0.5rem",
+          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+          overflow: "hidden",
+          zIndex: 50,
+          maxHeight: "20rem",
+          overflowY: "auto",
+        }}>
           {results.map((card) => {
             const imageUri = getCardImageUri(card, "small");
             return (
@@ -145,9 +201,31 @@ export function CommanderPicker({
                 key={card.id}
                 type="button"
                 onClick={() => handleSelect(card)}
-                className="w-full px-3 py-2 flex items-center gap-3 hover:bg-surface transition-colors text-left"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem 0.75rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  color: "#ffffff",
+                  transition: "background-color 0.15s",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
               >
-                <div className="relative h-12 w-9 rounded overflow-hidden flex-shrink-0 bg-surface">
+                <div style={{
+                  position: "relative",
+                  height: "3rem",
+                  width: "2.25rem",
+                  borderRadius: "0.25rem",
+                  overflow: "hidden",
+                  flexShrink: 0,
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                }}>
                   <Image
                     src={imageUri}
                     alt={card.name}
@@ -155,28 +233,48 @@ export function CommanderPicker({
                     className="object-cover"
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground truncate">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontWeight: 500,
+                    color: "#ffffff",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}>
                     {card.name}
                   </div>
-                  <div className="text-xs text-foreground-muted truncate">
+                  <div style={{
+                    fontSize: "0.75rem",
+                    color: "#a1a1aa",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}>
                     {card.type_line}
                   </div>
                 </div>
                 {/* Color identity dots */}
-                <div className="flex gap-1">
-                  {card.color_identity.map((color) => (
-                    <div
-                      key={color}
-                      className={cn("h-3 w-3 rounded-full", {
-                        "bg-white": color === "W",
-                        "bg-blue-500": color === "U",
-                        "bg-gray-800": color === "B",
-                        "bg-red-500": color === "R",
-                        "bg-green-500": color === "G",
-                      })}
-                    />
-                  ))}
+                <div style={{ display: "flex", gap: "0.25rem" }}>
+                  {card.color_identity.map((color) => {
+                    const colorMap: Record<string, string> = {
+                      W: "#ffffff",
+                      U: "#3b82f6",
+                      B: "#1f2937",
+                      R: "#ef4444",
+                      G: "#22c55e",
+                    };
+                    return (
+                      <div
+                        key={color}
+                        style={{
+                          height: "0.75rem",
+                          width: "0.75rem",
+                          borderRadius: "50%",
+                          backgroundColor: colorMap[color] || "#6b7280",
+                        }}
+                      />
+                    );
+                  })}
                 </div>
               </button>
             );

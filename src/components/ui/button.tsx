@@ -35,22 +35,45 @@ const variantStyles: Record<string, React.CSSProperties> = {
   },
 };
 
+const sizeStyles: Record<string, React.CSSProperties> = {
+  default: {
+    height: "2.5rem",
+    padding: "0.5rem 1rem",
+    fontSize: "0.875rem",
+  },
+  sm: {
+    height: "2rem",
+    padding: "0.25rem 0.75rem",
+    fontSize: "0.75rem",
+  },
+  lg: {
+    height: "3rem",
+    padding: "0.75rem 1.5rem",
+    fontSize: "1rem",
+  },
+  icon: {
+    height: "2.5rem",
+    width: "2.5rem",
+  },
+};
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(
-          "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
-          {
-            "h-10 px-4 py-2 text-sm": size === "default",
-            "h-8 px-3 text-xs": size === "sm",
-            "h-12 px-6 text-base": size === "lg",
-            "h-10 w-10": size === "icon",
-          },
-          className
-        )}
+        className={cn(className)}
         style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.5rem",
+          whiteSpace: "nowrap",
+          borderRadius: "0.5rem",
+          fontWeight: 500,
+          cursor: "pointer",
+          transition: "all 0.15s ease",
+          ...sizeStyles[size],
           ...variantStyles[variant],
           ...style,
         }}

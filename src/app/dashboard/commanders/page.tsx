@@ -114,13 +114,13 @@ export default function CommandersPage() {
           <CardHeader>
             <CardTitle>Add Commander</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <CommanderPicker
               value={selectedCommander}
               onChange={setSelectedCommander}
               placeholder="Search for a commander..."
             />
-            <div className="flex gap-2">
+            <div style={{ display: "flex", gap: "0.5rem" }}>
               <Button onClick={addCommander} disabled={!selectedCommander}>
                 Add to Collection
               </Button>

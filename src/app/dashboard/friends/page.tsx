@@ -221,8 +221,8 @@ export default function FriendsPage() {
         <CardHeader>
           <CardTitle>Find Players</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
+        <CardContent style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div style={{ position: "relative" }}>
             <Input
               placeholder="Search by username..."
               value={searchQuery}
@@ -232,30 +232,49 @@ export default function FriendsPage() {
               }}
             />
             {isSearching && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+              <div style={{
+                position: "absolute",
+                right: "0.75rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}>
+                <div style={{
+                  height: "1rem",
+                  width: "1rem",
+                  borderRadius: "50%",
+                  border: "2px solid #a855f7",
+                  borderTopColor: "transparent",
+                  animation: "spin 1s linear infinite",
+                }} />
               </div>
             )}
           </div>
 
           {searchResults.length > 0 && (
-            <div className="space-y-2">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {searchResults.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-surface"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0.75rem",
+                    borderRadius: "0.5rem",
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  }}
                 >
-                  <div className="flex items-center gap-3">
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                     <Avatar
                       src={user.avatar_url}
                       fallback={user.display_name || user.username}
                       size="md"
                     />
                     <div>
-                      <div className="font-medium">
+                      <div style={{ fontWeight: 500, color: "#ffffff" }}>
                         {user.display_name || user.username}
                       </div>
-                      <div className="text-sm text-foreground-muted">
+                      <div style={{ fontSize: "0.875rem", color: "#a1a1aa" }}>
                         @{user.username}
                       </div>
                     </div>

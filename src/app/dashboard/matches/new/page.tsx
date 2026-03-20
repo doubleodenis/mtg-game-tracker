@@ -344,8 +344,8 @@ export default function NewMatchPage() {
           )}
 
           {/* Add Player */}
-          <div className="space-y-3">
-            <div className="relative">
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ position: "relative" }}>
               <Input
                 placeholder="Search for a player..."
                 value={friendSearch}
@@ -355,21 +355,57 @@ export default function NewMatchPage() {
                 }}
               />
               {friendResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-background-secondary border border-surface-border rounded-lg shadow-xl z-10 overflow-hidden">
+                <div style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  right: 0,
+                  marginTop: "0.25rem",
+                  backgroundColor: "rgba(18, 18, 26, 0.98)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: "0.5rem",
+                  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+                  zIndex: 10,
+                  overflow: "hidden",
+                }}>
                   {friendResults.map((user) => (
                     <button
                       key={user.id}
                       onClick={() => addParticipant(user)}
-                      className="w-full px-4 py-2 flex items-center gap-3 hover:bg-surface transition-colors text-left"
+                      style={{
+                        width: "100%",
+                        padding: "0.5rem 1rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                        backgroundColor: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        color: "#ffffff",
+                        transition: "background-color 0.15s",
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)"}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                     >
-                      <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center text-foreground-muted text-sm">
+                      <div style={{
+                        height: "2rem",
+                        width: "2rem",
+                        borderRadius: "50%",
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#a1a1aa",
+                        fontSize: "0.875rem",
+                      }}>
                         {user.username.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-medium">
+                        <div style={{ fontWeight: 500 }}>
                           {user.display_name || user.username}
                         </div>
-                        <div className="text-xs text-foreground-muted">
+                        <div style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>
                           @{user.username}
                         </div>
                       </div>
@@ -381,7 +417,7 @@ export default function NewMatchPage() {
 
             {/* Add Guest */}
             {showGuestInput ? (
-              <div className="flex gap-2">
+              <div style={{ display: "flex", gap: "0.5rem" }}>
                 <Input
                   placeholder="Guest name..."
                   value={guestName}
