@@ -1,15 +1,30 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Barlow, Chakra_Petch, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
+const chakraPetch = Chakra_Petch({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-display',
+  display: 'swap',
+})
+
+const barlow = Barlow({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+  display: 'swap',
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-data',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
-  title: "MTG Commander Tracker",
+  title: "CommandZone — Commander Tracker",
   description: "Track your Magic: The Gathering Commander matches, stats, and compete with friends",
   keywords: ["MTG", "Magic The Gathering", "Commander", "EDH", "match tracker", "stats"],
 };
@@ -21,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground min-h-screen`}>
+      <body className={`${barlow.variable} ${chakraPetch.variable} ${jetbrainsMono.variable} font-body antialiased bg-bg-base text-text-1 min-h-screen`}>
         {children}
       </body>
     </html>
