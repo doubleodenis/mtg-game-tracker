@@ -13,6 +13,43 @@ export { ConfirmationStatus, ConfirmationCount, type ConfirmationState } from ".
 export { WLBadge } from "./wl-badge";
 export { ManaPip, ColorIdentity } from "./mana-pip";
 
+// Loading & State
+export {
+  Skeleton,
+  SkeletonAvatar,
+  SkeletonText,
+  SkeletonCard,
+  SkeletonMatchCard,
+  SkeletonStatCard,
+  SkeletonProfileHeader,
+  SkeletonTable,
+  type SkeletonVariant,
+} from "./skeleton";
+
+export {
+  EmptyState,
+  IconMatches,
+  IconDecks,
+  IconCollections,
+  IconFriends,
+  IconSearch,
+  IconNotifications,
+  IconChart,
+  type EmptyStateProps,
+} from "./empty-state";
+
+export {
+  ErrorBoundary,
+  ErrorFallback,
+  ErrorFallbackCard,
+  ErrorFallbackInline,
+  PageError,
+  IconError,
+  type ErrorBoundaryProps,
+  type ErrorFallbackProps,
+  type PageErrorProps,
+} from "./error-boundary";
+
 // Legacy (to be reviewed)
 export { StatCard } from "./stat-card";
 export { PlayerSearchInput } from "./player-search-input";

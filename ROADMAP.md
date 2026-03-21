@@ -24,8 +24,9 @@
   - [x] Bracket indicator (1–4)
   - [x] Rating delta display (`+12`, `−8`)
   - [x] Confirmation status indicator
-- [ ] Empty states for every data-dependent view
-- [ ] Loading skeletons for every data-dependent view
+- [x] Empty states for every data-dependent view
+- [x] Loading skeletons for every data-dependent view
+- [x] Error boundaries for graceful error handling
 
 ---
 

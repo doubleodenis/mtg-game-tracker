@@ -150,4 +150,19 @@
   --transition-fast:   150ms ease;   /* hover states, tooltip reveal */
   --transition-normal: 250ms ease;   /* panel transitions */
 
+  /* ─────────────────────────────────────────
+     ANIMATIONS
+     Generates: animate-*
+  ───────────────────────────────────────── */
+  --animate-shimmer: shimmer 1.5s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
 }

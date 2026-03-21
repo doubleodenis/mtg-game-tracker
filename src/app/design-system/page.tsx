@@ -21,6 +21,20 @@ import {
   WLBadge,
   ManaPip,
   ColorIdentity,
+  Skeleton,
+  SkeletonAvatar,
+  SkeletonText,
+  SkeletonCard,
+  SkeletonMatchCard,
+  SkeletonStatCard,
+  EmptyState,
+  IconMatches,
+  IconDecks,
+  IconCollections,
+  IconFriends,
+  IconSearch,
+  ErrorFallback,
+  ErrorFallbackCard,
 } from "@/components/ui";
 import { Sidebar, TabNav, PageHeader, type NavItem } from "@/components/layout";
 import type { FormatSlug } from "@/types/format";
@@ -287,6 +301,104 @@ export default function DesignSystemPage() {
             <ColorIdentity colors={["W", "U", "B", "R", "G"]} />
             <ColorIdentity colors={[]} />
           </Row>
+        </Section>
+
+        {/* Skeleton */}
+        <Section title="Skeleton">
+          <div className="space-y-4">
+            <Row label="Base variants">
+              <Skeleton variant="text" width={120} />
+              <Skeleton variant="rectangular" width={80} height={40} />
+              <Skeleton variant="circular" width={40} height={40} />
+            </Row>
+            <Row label="Skeleton presets">
+              <SkeletonAvatar size={28} />
+              <SkeletonAvatar size={40} />
+              <SkeletonText lines={2} className="w-48" />
+            </Row>
+            <Row label="Card Skeletons">
+              <SkeletonStatCard className="w-48" />
+            </Row>
+            <Row label="Match Card Skeleton">
+              <SkeletonMatchCard className="w-80" />
+            </Row>
+            <Row label="Generic Card Skeleton">
+              <SkeletonCard className="w-80" />
+            </Row>
+          </div>
+        </Section>
+
+        {/* Empty States */}
+        <Section title="Empty States">
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <EmptyState
+                icon={<IconMatches className="w-full h-full" />}
+                title="No matches yet"
+                description="Record your first Commander game to start tracking your stats."
+                action={<Button size="sm">Record Match</Button>}
+              />
+            </Card>
+            <Card>
+              <EmptyState
+                icon={<IconDecks className="w-full h-full" />}
+                title="No decks yet"
+                description="Add your first deck to start tracking per-deck statistics."
+                action={<Button size="sm">Add Deck</Button>}
+              />
+            </Card>
+            <Card>
+              <EmptyState
+                icon={<IconCollections className="w-full h-full" />}
+                title="No collections yet"
+                description="Create or join a collection to track matches with your playgroup."
+                action={<Button size="sm">Create Collection</Button>}
+              />
+            </Card>
+            <Card>
+              <EmptyState
+                icon={<IconFriends className="w-full h-full" />}
+                title="No friends yet"
+                description="Add friends to easily invite them to matches."
+                action={<Button size="sm">Find Friends</Button>}
+              />
+            </Card>
+            <Card>
+              <EmptyState
+                icon={<IconSearch className="w-full h-full" />}
+                title="No results found"
+                description="No results for &quot;Atraxa&quot;. Try a different search term."
+              />
+            </Card>
+            <Card>
+              <EmptyState
+                title="Custom Empty State"
+                description="You can create custom empty states with any icon and content."
+                size="sm"
+              />
+            </Card>
+          </div>
+        </Section>
+
+        {/* Error Fallbacks */}
+        <Section title="Error Fallbacks">
+          <div className="space-y-4">
+            <Row label="Default">
+              <Card className="w-96">
+                <ErrorFallback
+                  error={new Error("Something went wrong")}
+                  onReset={() => alert("Reset clicked")}
+                  showDetails
+                />
+              </Card>
+            </Row>
+            <Row label="Card-level">
+              <ErrorFallbackCard
+                error={new Error("Failed to load")}
+                onReset={() => alert("Retry clicked")}
+              />
+            </Row>
+          </div>
         </Section>
 
         {/* Typography */}
