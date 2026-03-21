@@ -51,18 +51,22 @@ export function PageHeader({ title, description, actions, className }: PageHeade
 
 interface SectionProps {
   title?: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
 
 /**
- * Content section with optional title.
+ * Content section with optional title and action.
  */
-export function Section({ title, children, className }: SectionProps) {
+export function Section({ title, action, children, className }: SectionProps) {
   return (
     <section className={cn("space-y-4", className)}>
-      {title && (
-        <h2 className="text-label text-accent">{title}</h2>
+      {(title || action) && (
+        <div className="flex items-center justify-between">
+          {title && <h2 className="text-label text-accent">{title}</h2>}
+          {action}
+        </div>
       )}
       {children}
     </section>

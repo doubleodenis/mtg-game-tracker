@@ -2,7 +2,15 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Avatar, FormatBadge, RatingDisplay, WLBadge, ColorIdentity, BracketBadge } from "@/components/ui";
 import { PageHeader, Section } from "@/components/layout";
+import { cn, formatRelativeTime } from "@/lib/utils";
+import {
+  createMockLeaderboard,
+  createMockMatchCardData,
+  createMockDeckWithStats,
+} from "@/lib/mock";
+import type { LeaderboardEntry, MatchCardData, DeckWithStats } from "@/types";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -18,6 +26,21 @@ export default async function HomePage() {
 // ============================================
 // Global Dashboard (Logged Out)
 // ============================================
+
+// Generate mock data
+const mockLeaderboard = createMockLeaderboard(5);
+const mockRecentMatches = Array.from({ length: 5 }, () => createMockMatchCardData(4));
+const mockTopCommanders = Array.from({ length: 5 }, (_, i) =>
+  createMockDeckWithStats({ id: `deck-${i}` })
+);
+
+// Platform stats (mock counts)
+const platformStats = {
+  totalMatches: 12847,
+  activePlayers: 3421,
+  commandersPlayed: 892,
+  collections: 156,
+};
 
 function GlobalDashboard() {
   return (
@@ -35,36 +58,44 @@ function GlobalDashboard() {
       {/* Platform Stats */}
       <Section title="PLATFORM STATS">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Total Matches" value="—" />
-          <StatCard label="Active Players" value="—" />
-          <StatCard label="Commanders Played" value="—" />
-          <StatCard label="Collections" value="—" />
+          <StatCard label="Total Matches" value={platformStats.totalMatches.toLocaleString()} />
+          <StatCard label="Active Players" value={platformStats.activePlayers.toLocaleString()} />
+          <StatCard label="Commanders Played" value={platformStats.commandersPlayed.toLocaleString()} />
+          <StatCard label="Collections" value={platformStats.collections.toLocaleString()} />
         </div>
       </Section>
 
       {/* Leaderboards Preview */}
-      <Section title="TOP PLAYERS">
+      <Section title="TOP PLAYERS" action={
+        <Link href="/leaderboards" className="text-sm text-accent hover:text-accent-fill transition-colors">
+          View All
+        </Link>
+      }>
         <Card>
-          <CardContent className="p-6">
-            <p className="text-text-2 text-center py-8">
-              Leaderboard data will appear here once matches are recorded.
-            </p>
-            <div className="flex justify-center">
-              <Button variant="secondary" asChild>
-                <Link href="/leaderboards">View All Leaderboards</Link>
-              </Button>
-            </div>
+          <CardContent className="p-0">
+            <LeaderboardPreview entries={mockLeaderboard} />
           </CardContent>
         </Card>
       </Section>
 
       {/* Recent Matches */}
-      <Section title="RECENT MATCHES">
+      <Section title="RECENT MATCHES" action={
+        <Link href="/matches" className="text-sm text-accent hover:text-accent-fill transition-colors">
+          View All
+        </Link>
+      }>
+        <div className="space-y-3">
+          {mockRecentMatches.map((match) => (
+            <MatchPreviewCard key={match.id} match={match} />
+          ))}
+        </div>
+      </Section>
+
+      {/* Most Played Commanders */}
+      <Section title="POPULAR COMMANDERS">
         <Card>
-          <CardContent className="p-6">
-            <p className="text-text-2 text-center py-8">
-              Recent platform activity will appear here.
-            </p>
+          <CardContent className="p-0">
+            <TopCommandersList commanders={mockTopCommanders} />
           </CardContent>
         </Card>
       </Section>
@@ -193,5 +224,149 @@ function StatCard({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// ============================================
+// Global Dashboard Components
+// ============================================
+
+function LeaderboardPreview({ entries }: { entries: LeaderboardEntry[] }) {
+  return (
+    <div className="divide-y divide-card-border">
+      {entries.map((entry) => (
+        <Link
+          key={entry.id}
+          href={`/player/${entry.username}`}
+          className="flex items-center gap-4 px-4 py-3 hover:bg-bg-raised/50 transition-colors"
+        >
+          {/* Rank */}
+          <span className={cn(
+            "w-6 text-center font-display font-bold",
+            entry.rank === 1 && "text-gold",
+            entry.rank === 2 && "text-text-2",
+            entry.rank === 3 && "text-[#cd7f32]", // bronze
+            entry.rank > 3 && "text-text-3"
+          )}>
+            {entry.rank}
+          </span>
+
+          {/* Avatar */}
+          <Avatar src={entry.avatarUrl} fallback={entry.username} size="sm" />
+
+          {/* Name & Stats */}
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-text-1 truncate">{entry.username}</p>
+            <p className="text-mono-xs text-text-2">
+              {entry.matchesPlayed} matches • {entry.winRate}% WR
+            </p>
+          </div>
+
+          {/* Rating */}
+          <RatingDisplay rating={entry.rating} />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function MatchPreviewCard({ match }: { match: MatchCardData }) {
+  const winner = match.participants.find(p => p.isWinner);
+
+  return (
+    <Link
+      href={`/match/${match.id}`}
+      className="block"
+    >
+      <Card className="hover:border-card-border-hi transition-colors">
+        <CardContent className="p-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <FormatBadge format={match.formatSlug as 'ffa' | '1v1' | '2v2' | '3v3' | 'pentagram'} />
+              {winner && (
+                <span className="text-sm text-text-2">
+                  Winner: <span className="text-text-1">{winner.name}</span>
+                </span>
+              )}
+            </div>
+            <span className="text-mono-xs text-text-2">
+              {formatRelativeTime(match.playedAt)}
+            </span>
+          </div>
+
+          {/* Participants */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-1">
+            {match.participants.map((participant) => (
+              <div
+                key={participant.id}
+                className={cn(
+                  "flex items-center gap-2 px-2 py-1 rounded-md shrink-0",
+                  participant.isWinner && "bg-win-subtle ring-1 ring-win-ring"
+                )}
+              >
+                <Avatar
+                  src={participant.avatarUrl}
+                  fallback={participant.name}
+                  size="sm"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-text-1 truncate max-w-25">
+                    {participant.name}
+                  </p>
+                  {participant.deck && (
+                    <div className="flex items-center gap-1">
+                      <ColorIdentity colors={participant.deck.colorIdentity} size="sm" />
+                      <BracketBadge bracket={participant.deck.bracket} />
+                    </div>
+                  )}
+                </div>
+                {participant.isWinner && (
+                  <span className="text-gold">👑</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function TopCommandersList({ commanders }: { commanders: DeckWithStats[] }) {
+  return (
+    <div className="divide-y divide-card-border">
+      {commanders.map((deck, i) => (
+        <div
+          key={deck.id}
+          className="flex items-center gap-4 px-4 py-3"
+        >
+          {/* Rank */}
+          <span className={cn(
+            "w-6 text-center font-display font-bold",
+            i === 0 && "text-gold",
+            i === 1 && "text-text-2",
+            i === 2 && "text-[#cd7f32]",
+            i > 2 && "text-text-3"
+          )}>
+            {i + 1}
+          </span>
+
+          {/* Color Identity */}
+          <ColorIdentity colors={deck.colorIdentity} />
+
+          {/* Commander Name */}
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-text-1 truncate">{deck.commanderName}</p>
+            <p className="text-mono-xs text-text-2">
+              {deck.stats.gamesPlayed} games • {deck.stats.winRate}% WR
+            </p>
+          </div>
+
+          {/* Bracket */}
+          <BracketBadge bracket={deck.bracket} />
+        </div>
+      ))}
+    </div>
   );
 }

@@ -35,12 +35,12 @@
 > Build these fully against mock data. This is where missing fields, awkward data shapes, and anything the requirements doc didn't anticipate will surface.
 
 - [ ] Dashboard (dual-purpose — public when logged out, personal when logged in)
-  - [ ] **Logged Out — Global Dashboard**
-    - [ ] Global leaderboards (top rated players per format)
-    - [ ] Recent matches across the platform
-    - [ ] Most played commanders/decks
-    - [ ] Platform stats (total matches, active players)
-    - [ ] Sign up call to action
+  - [x] **Logged Out — Global Dashboard**
+    - [x] Global leaderboards (top rated players per format)
+    - [x] Recent matches across the platform
+    - [x] Most played commanders/decks
+    - [x] Platform stats (total matches, active players)
+    - [x] Sign up call to action
   - [ ] **Logged In — Personal Dashboard**
     - [ ] Rating view (per-format rating, history chart, recent matches with delta)
     - [ ] Win Rate view (overall + per-format, per-deck, streaks)
