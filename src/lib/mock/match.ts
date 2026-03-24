@@ -14,9 +14,11 @@ import type {
   MatchWithDetails,
   MatchWithParticipants,
   ParticipantData,
+  ParticipantDataPentagram,
   ParticipantDisplayInfo,
   PendingConfirmation,
 } from '@/types'
+import { getPentagramEnemies, PENTAGRAM_ADJACENCY_MAP } from '@/types'
 import { createMockDeckSummary } from './deck'
 import { createMockFormatSummary } from './format'
 import { createMockProfileSummary } from './profile'
@@ -145,6 +147,7 @@ export function createMockParticipantDisplayInfo(
     team: null,
     isWinner: false,
     ratingDelta: { before: 1000, after: 1012, delta: 12, isPositive: true },
+    participantData: null,
     ...overrides,
   }
 }
@@ -249,6 +252,88 @@ export function createMockMatchCardData(
 /**
  * Create a set of varied mock matches for dashboard display
  */
+/**
+ * Get team assignment for a participant based on format and index
+ */
+function getTeamForParticipant(
+  format: FormatSlug,
+  index: number,
+  playerCount: number
+): string | null {
+  switch (format) {
+    case '1v1':
+      return index === 0 ? 'A' : 'B'
+    case '2v2':
+      return index < 2 ? 'A' : 'B'
+    case '3v3':
+      return index < 3 ? 'A' : 'B'
+    default:
+      return null
+  }
+}
+
+/**
+ * Check if a format is a team format
+ */
+export function isTeamFormat(formatSlug: FormatSlug): boolean {
+  return formatSlug === '1v1' || formatSlug === '2v2' || formatSlug === '3v3'
+}
+
+/**
+ * Create Pentagram participant data for all 5 players given their IDs
+ */
+function createPentagramParticipantData(
+  participantIds: [string, string, string, string, string]
+): ParticipantDataPentagram[] {
+  return participantIds.map((_, seatPosition) => {
+    const allies = PENTAGRAM_ADJACENCY_MAP[seatPosition]
+    const enemies = getPentagramEnemies(seatPosition)
+    
+    return {
+      format: 'pentagram' as const,
+      seatPosition: seatPosition as 0 | 1 | 2 | 3 | 4,
+      targetParticipantIds: [
+        participantIds[enemies[0]],
+        participantIds[enemies[1]],
+      ] as [string, string],
+      allyParticipantIds: [
+        participantIds[allies[0]],
+        participantIds[allies[1]],
+      ] as [string, string],
+    }
+  })
+}
+
+/**
+ * Get participant data based on format
+ */
+function getParticipantDataForFormat(
+  format: FormatSlug,
+  index: number,
+  participantIds?: string[]
+): ParticipantData | null {
+  switch (format) {
+    case 'pentagram':
+      if (participantIds && participantIds.length === 5) {
+        const pentagramData = createPentagramParticipantData(
+          participantIds as [string, string, string, string, string]
+        )
+        return pentagramData[index]
+      }
+      return null
+    case '1v1':
+      return { format: '1v1' }
+    case 'ffa':
+      return { format: 'ffa' }
+    case '2v2':
+      return { format: '2v2', teamId: index < 2 ? 'A' : 'B' }
+    case '3v3':
+      return { format: '3v3', teamId: index < 3 ? 'A' : 'B' }
+    default:
+      return null
+  }
+}
+
 export function createMockDashboardMatches(): MatchCardData[] {
   // Mix of different player counts and formats
   // Player counts must match format requirements:
@@ -265,16 +350,30 @@ export function createMockDashboardMatches(): MatchCardData[] {
     { count: 6, format: '3v3', formatName: '3v3', bracket: 4 },
   ];
 
-  return configs.map((config, matchIndex) => {
-    const winnerIndex = matchIndex % config.count;
-    const participants = Array.from({ length: config.count }, (_, i) =>
-      createMockParticipantDisplayInfo({
-        isWinner: i === winnerIndex,
+  return configs.map((config) => {
+    // Randomize winner for each match
+    const winningTeam = Math.random() < 0.5 ? 'A' : 'B'
+    const winnerIndex = Math.floor(Math.random() * config.count)
+    
+    // Pre-generate participant IDs for Pentagram enemy/ally mapping
+    const participantIds = Array.from({ length: config.count }, () => generateMockId())
+    
+    const participants = Array.from({ length: config.count }, (_, i) => {
+      const team = getTeamForParticipant(config.format, i, config.count)
+      const isWinner = isTeamFormat(config.format)
+        ? team === winningTeam
+        : i === winnerIndex
+      
+      return createMockParticipantDisplayInfo({
+        id: participantIds[i],
+        isWinner,
+        team,
         deck: createMockDeckSummary({
           bracket: config.bracket,
         }),
+        participantData: getParticipantDataForFormat(config.format, i, participantIds),
       })
-    );
+    });
 
     return {
       ...createMockMatchSummary({
@@ -292,34 +391,58 @@ export function createMockDashboardMatches(): MatchCardData[] {
  * Create mock matches where the user participated (for personal dashboard)
  */
 export function createMockUserMatches(userId: string): MatchCardData[] {
-  const configs: Array<{ count: number; userWon: boolean; bracket: Bracket; delta: number }> = [
-    { count: 4, userWon: true, bracket: 2, delta: 15 },
-    { count: 5, userWon: false, bracket: 3, delta: -9 },
-    { count: 4, userWon: true, bracket: 2, delta: 12 },
-    { count: 6, userWon: false, bracket: 2, delta: -7 },
-    { count: 4, userWon: true, bracket: 4, delta: 22 },
+  const configs: Array<{
+    count: number
+    format: FormatSlug
+    formatName: string
+    bracket: Bracket
+  }> = [
+    { count: 4, format: 'ffa', formatName: 'Free For All', bracket: 2 },
+    { count: 5, format: 'pentagram', formatName: 'Pentagram', bracket: 3 },
+    { count: 4, format: '2v2', formatName: '2v2', bracket: 2 },
+    { count: 6, format: '3v3', formatName: '3v3', bracket: 2 },
+    { count: 2, format: '1v1', formatName: '1v1', bracket: 4 },
   ];
 
-  return configs.map((config, matchIndex) => {
+  return configs.map((config) => {
     const userIndex = 0; // User is always first
-    const winnerIndex = config.userWon ? userIndex : 1;
+    const hasTeams = isTeamFormat(config.format);
+    
+    // Randomize whether user wins
+    const userWon = Math.random() < 0.5;
+    const delta = userWon 
+      ? Math.floor(Math.random() * 20) + 5  // +5 to +24
+      : -(Math.floor(Math.random() * 15) + 3); // -3 to -17
+    
+    // For team formats, user is on team A. Winning team depends on userWon
+    const winningTeam = userWon ? 'A' : 'B';
+    // For FFA/pentagram, pick random winner index (0 = user wins, other = user loses)
+    const winnerIndex = userWon ? userIndex : Math.floor(Math.random() * (config.count - 1)) + 1;
+    
+    // Pre-generate participant IDs (user is always first)
+    const participantIds = [userId, ...Array.from({ length: config.count - 1 }, () => generateMockId())]
 
     const participants = Array.from({ length: config.count }, (_, i) => {
       const isUser = i === userIndex;
-      const isWinner = i === winnerIndex;
+      const team = getTeamForParticipant(config.format, i, config.count);
+      const isWinner = hasTeams
+        ? team === winningTeam
+        : i === winnerIndex;
 
       return createMockParticipantDisplayInfo({
-        id: isUser ? userId : generateMockId(),
+        id: participantIds[i],
         isWinner,
+        team,
         deck: createMockDeckSummary({ bracket: config.bracket }),
         ratingDelta: isUser
           ? {
               before: 1000,
-              after: 1000 + config.delta,
-              delta: config.delta,
-              isPositive: config.delta > 0,
+              after: 1000 + delta,
+              delta: delta,
+              isPositive: delta > 0,
             }
           : null,
+        participantData: getParticipantDataForFormat(config.format, i, participantIds),
       });
     });
 
@@ -328,7 +451,9 @@ export function createMockUserMatches(userId: string): MatchCardData[] {
     return {
       ...createMockMatchSummary({
         participantCount: config.count,
-        winnerNames: [participants[winnerIndex].name],
+        formatSlug: config.format,
+        formatName: config.formatName,
+        winnerNames: [participants.find(p => p.isWinner)?.name ?? ''],
       }),
       participants,
       userParticipant,

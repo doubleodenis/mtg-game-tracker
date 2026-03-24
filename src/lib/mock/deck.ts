@@ -36,8 +36,9 @@ const MOCK_COMMANDERS = [
 
 export function createMockDeck(overrides: Partial<Deck> = {}): Deck {
   const id = overrides.id ?? generateMockId()
-  const index = parseInt(id.split('-')[1] || '0') % MOCK_COMMANDERS.length
-  const commander = MOCK_COMMANDERS[index]
+  // Use random selection for fresh data on each render
+  const randomIndex = Math.floor(Math.random() * MOCK_COMMANDERS.length)
+  const commander = MOCK_COMMANDERS[randomIndex]
 
   return {
     id,

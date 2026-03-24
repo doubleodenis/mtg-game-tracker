@@ -4,7 +4,7 @@
 
 import type { ISODateString, UUID } from './common'
 import type { DeckSummary } from './deck'
-import type { FormatSummary, MatchData, ParticipantData } from './format'
+import type { FormatSlug, FormatSummary, MatchData, ParticipantData } from './format'
 import type { ProfileSummary } from './profile'
 import type { RatingDelta } from './rating'
 
@@ -74,6 +74,7 @@ export type ParticipantDisplayInfo = {
   team: string | null
   isWinner: boolean
   ratingDelta: RatingDelta | null // null if not confirmed
+  participantData: ParticipantData | null // format-specific metadata
 }
 
 /**

@@ -19,9 +19,16 @@ import {
   createMockPendingConfirmations,
   createMockCollectionActivities,
   createMockRatingTimeline,
+  resetMockIds,
 } from "@/lib/mock";
 
+// Force dynamic rendering to refresh mock data on each request
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
+  // Reset mock ID counter on each render for fresh data
+  resetMockIds();
+  
   // TODO: Re-enable Supabase auth when backend is configured
   // const supabase = await createClient();
   // const { data: { user } } = await supabase.auth.getUser();

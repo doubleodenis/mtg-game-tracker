@@ -42,12 +42,13 @@ const MOCK_AVATARS = [
 
 export function createMockProfile(overrides: Partial<Profile> = {}): Profile {
   const id = overrides.id ?? generateMockId()
-  const index = parseInt(id.split('-')[1] || '0') % MOCK_USERNAMES.length
+  // Use random selection instead of deterministic to ensure fresh data on each render
+  const randomIndex = Math.floor(Math.random() * MOCK_USERNAMES.length)
 
   return {
     id,
-    username: MOCK_USERNAMES[index],
-    avatarUrl: MOCK_AVATARS[index % MOCK_AVATARS.length],
+    username: MOCK_USERNAMES[randomIndex],
+    avatarUrl: MOCK_AVATARS[randomIndex % MOCK_AVATARS.length],
     createdAt: generateMockDate(90),
     ...overrides,
   }
