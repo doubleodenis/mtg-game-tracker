@@ -12,6 +12,7 @@ import {
   createMockLeaderboard,
   createMockMatchCardData,
   createMockDeckWithStats,
+  createMockDashboardMatches,
 } from "@/lib/mock";
 import type { LeaderboardEntry, MatchCardData, DeckWithStats } from "@/types";
 
@@ -32,13 +33,6 @@ export default async function HomePage() {
 // Global Dashboard (Logged Out)
 // ============================================
 
-// Generate mock data
-const mockLeaderboard = createMockLeaderboard(5);
-const mockRecentMatches = Array.from({ length: 5 }, () => createMockMatchCardData(4));
-const mockTopCommanders = Array.from({ length: 5 }, (_, i) =>
-  createMockDeckWithStats({ id: `deck-${i}` })
-);
-
 // Platform stats (mock counts)
 const platformStats = {
   totalMatches: 12847,
@@ -48,6 +42,12 @@ const platformStats = {
 };
 
 function GlobalDashboard() {
+  // Generate mock data on each render
+  const mockLeaderboard = createMockLeaderboard(5);
+  const mockRecentMatches = createMockDashboardMatches();
+  const mockTopCommanders = Array.from({ length: 5 }, (_, i) =>
+    createMockDeckWithStats({ id: `deck-${i}` })
+  );
   return (
     <div className="space-y-8">
       <PageHeader

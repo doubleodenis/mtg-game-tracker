@@ -51,7 +51,7 @@ export function MatchPreviewCard({
         <CardContent className="p-3 h-full">
           <div className="flex items-stretch gap-4 h-full">
             {/* Participants - fill the left side */}
-            <div className="flex-1 flex items-stretch gap-2">
+            <div className="flex-1 flex items-stretch justify-center gap-2">
               {match.participants.map((participant) => {
                 const commanderName = participant.deck?.commanderName;
                 const commanderImageUrl = commanderName
@@ -64,7 +64,7 @@ export function MatchPreviewCard({
                   <div
                     key={participant.id}
                     className={cn(
-                      "relative flex-1 min-w-0 rounded-lg overflow-hidden",
+                      "relative flex-1 min-w-0 rounded-lg overflow-hidden max-w-64",
                       participant.isWinner
                         ? "ring-2 ring-win"
                         : "ring-1 ring-card-border"

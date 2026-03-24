@@ -60,6 +60,7 @@ export {
 // Re-export match factories
 export {
   createMockAllPlaceholderMatch,
+  createMockDashboardMatches,
   createMockMatch,
   createMockMatchCardData,
   createMockMatchData,
@@ -72,6 +73,7 @@ export {
   createMockParticipantData,
   createMockParticipantDisplayInfo,
   createMockPartiallyConfirmedMatch,
+  createMockUserMatches,
 } from './match'
 
 // Re-export rating factories
@@ -92,7 +94,7 @@ import { createMockCollectionSummary } from './collection'
 import { createMockDeckWithStats } from './deck'
 import { createAllMockFormats } from './format'
 import { createMockFriend } from './friendship'
-import { createMockMatchCardData } from './match'
+import { createMockDashboardMatches } from './match'
 import { createMockPlayerStats, createMockProfile } from './profile'
 import { createMockRatingTimeline, createMockRatingWithFormat } from './rating'
 
@@ -108,9 +110,7 @@ export function createMockDashboardData() {
   const collections = Array.from({ length: 3 }, () =>
     createMockCollectionSummary()
   )
-  const recentMatches = Array.from({ length: 10 }, () =>
-    createMockMatchCardData()
-  )
+  const recentMatches = createMockDashboardMatches()
   const ratingHistory = createMockRatingTimeline(30)
   const ratings = createAllMockFormats().map((format) =>
     createMockRatingWithFormat({
