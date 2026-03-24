@@ -34,17 +34,23 @@
 
 > Build these fully against mock data. This is where missing fields, awkward data shapes, and anything the requirements doc didn't anticipate will surface.
 
-- [ ] Dashboard (dual-purpose — public when logged out, personal when logged in)
+- [x] Dashboard (dual-purpose — public when logged out, personal when logged in)
   - [x] **Logged Out — Global Dashboard**
     - [x] Global leaderboards (top rated players per format)
     - [x] Recent matches across the platform
     - [x] Most played commanders/decks
     - [x] Platform stats (total matches, active players)
     - [x] Sign up call to action
-  - [ ] **Logged In — Personal Dashboard**
-    - [ ] Stats visualization (Different ratings per format, win rate, etc)
-    - [ ] Pending confirmation prompts
-    - [ ] Pods/collections activity (show recent delta change in most recent changed collections)
+  - [x] **Logged In — Personal Dashboard**
+    - [x] Stats visualization (rating, win rate, matches, streak)
+    - [x] Rating history chart
+    - [x] Pending confirmation prompts
+    - [x] Recent matches with rating deltas
+    - [x] Pods/collections activity
+  - [x] **Match Preview Card** (format-aware display)
+    - [x] Team formats with VS divider (1v1, 2v2, 3v3)
+    - [x] FFA format (all participants in row)
+    - [x] Pentagram format with ally/enemy indicators
 - [ ] Match Log
   - [ ] Full history list
   - [ ] Filters (format, date, deck, result)
