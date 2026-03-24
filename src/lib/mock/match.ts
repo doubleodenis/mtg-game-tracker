@@ -15,6 +15,7 @@ import type {
   MatchWithParticipants,
   ParticipantData,
   ParticipantDisplayInfo,
+  PendingConfirmation,
 } from '@/types'
 import { createMockDeckSummary } from './deck'
 import { createMockFormatSummary } from './format'
@@ -380,4 +381,47 @@ export function createMockMixedBracketMatch(): MatchWithParticipants {
   }))
 
   return match
+}
+
+// ============================================
+// Pending Confirmation Factories
+// ============================================
+
+/**
+ * Create mock pending confirmation
+ */
+export function createMockPendingConfirmation(
+  overrides: Partial<PendingConfirmation> = {}
+): PendingConfirmation {
+  return {
+    matchId: generateMockId(),
+    participantId: generateMockId(),
+    match: createMockMatchSummary({ isFullyConfirmed: false }),
+    createdAt: generateMockDate(1),
+    ...overrides,
+  }
+}
+
+/**
+ * Create multiple mock pending confirmations with variety
+ */
+export function createMockPendingConfirmations(count = 3): PendingConfirmation[] {
+  const formats: Array<{ slug: FormatSlug; name: string; count: number }> = [
+    { slug: 'ffa', name: 'Free For All', count: 4 },
+    { slug: 'pentagram', name: 'Pentagram', count: 5 },
+    { slug: '1v1', name: '1v1', count: 2 },
+  ]
+
+  return Array.from({ length: count }, (_, i) => {
+    const format = formats[i % formats.length]
+    return createMockPendingConfirmation({
+      match: createMockMatchSummary({
+        formatSlug: format.slug,
+        formatName: format.name,
+        participantCount: format.count,
+        confirmedCount: format.count - 1 - (i % 2), // Varying confirmation status
+        isFullyConfirmed: false,
+      }),
+    })
+  })
 }

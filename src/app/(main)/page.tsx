@@ -1,26 +1,31 @@
 import Link from "next/link";
-import Image from "next/image";
 // import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Avatar, Badge, FormatBadge, RatingDisplay, WLBadge, ColorIdentity, BracketBadge } from "@/components/ui";
+import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader, Section } from "@/components/layout";
 import { MatchPreviewCard } from "@/components/match/match-preview-card";
-import { cn, formatRelativeTime } from "@/lib/utils";
-import { buildCommanderImageUrl } from "@/lib/scryfall/api";
+import { DashboardStatCard } from "@/components/features/dashboard-stat-card";
+import { LeaderboardPreview } from "@/components/features/leaderboard-preview";
+import { TopCommandersList } from "@/components/features/top-commanders-list";
+import { PendingConfirmationCard } from "@/components/features/pending-confirmation-card";
+import { CollectionActivityCard } from "@/components/features/collection-activity-card";
 import {
   createMockLeaderboard,
-  createMockMatchCardData,
   createMockDeckWithStats,
   createMockDashboardMatches,
+  createMockPlayerStats,
+  createMockUserMatches,
+  createMockPendingConfirmations,
+  createMockCollectionActivities,
 } from "@/lib/mock";
-import type { LeaderboardEntry, MatchCardData, DeckWithStats } from "@/types";
 
 export default async function HomePage() {
   // TODO: Re-enable Supabase auth when backend is configured
   // const supabase = await createClient();
   // const { data: { user } } = await supabase.auth.getUser();
-  const user = null as { id: string } | null;
+  
+  // Mock logged-in user for development
+  const user = { id: 'mock-user-123' } as { id: string } | null;
 
   if (user) {
     return <PersonalDashboard userId={user.id} />;
@@ -63,10 +68,10 @@ function GlobalDashboard() {
       {/* Platform Stats */}
       <Section title="PLATFORM STATS">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Total Matches" value={platformStats.totalMatches.toLocaleString()} />
-          <StatCard label="Active Players" value={platformStats.activePlayers.toLocaleString()} />
-          <StatCard label="Commanders Played" value={platformStats.commandersPlayed.toLocaleString()} />
-          <StatCard label="Collections" value={platformStats.collections.toLocaleString()} />
+          <DashboardStatCard label="Total Matches" value={platformStats.totalMatches.toLocaleString()} />
+          <DashboardStatCard label="Active Players" value={platformStats.activePlayers.toLocaleString()} />
+          <DashboardStatCard label="Commanders Played" value={platformStats.commandersPlayed.toLocaleString()} />
+          <DashboardStatCard label="Collections" value={platformStats.collections.toLocaleString()} />
         </div>
       </Section>
 
@@ -136,7 +141,13 @@ async function PersonalDashboard({ userId }: { userId: string }) {
   //   .eq("id", userId)
   //   .single() as { data: { username: string; display_name: string | null } | null };
   // const displayName = profile?.display_name ?? profile?.username ?? "Commander";
-  const displayName = "Commander";
+  const displayName = "arcane_mage";
+
+  // Generate mock data for development
+  const stats = createMockPlayerStats({ totalMatches: 47, wins: 21 });
+  const recentMatches = createMockUserMatches(userId);
+  const pendingConfirmations = createMockPendingConfirmations(2);
+  const collectionActivities = createMockCollectionActivities(3);
 
   return (
     <div className="space-y-8">
@@ -153,173 +164,93 @@ async function PersonalDashboard({ userId }: { userId: string }) {
       {/* Quick Stats */}
       <Section title="YOUR STATS">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Rating" value="1000" sublabel="FFA" />
-          <StatCard label="Win Rate" value="—%" />
-          <StatCard label="Matches" value="0" />
-          <StatCard label="Decks" value="0" />
+          <DashboardStatCard label="Rating" value="1,247" sublabel="FFA" />
+          <DashboardStatCard label="Win Rate" value={`${stats.winRate}%`} />
+          <DashboardStatCard label="Matches" value={stats.totalMatches.toString()} />
+          <DashboardStatCard label="Win Streak" value={stats.currentStreak.toString()} />
         </div>
+      </Section>
+
+      {/* Collections Activity */}
+      <Section 
+        title="YOUR COLLECTIONS" 
+        action={
+          <Link href="/collections" className="text-sm text-accent hover:text-accent-fill transition-colors">
+            View All
+          </Link>
+        }
+      >
+        {collectionActivities.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {collectionActivities.map((activity) => (
+              <CollectionActivityCard key={activity.collection.id} activity={activity} />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-text-2 text-center py-4">
+                Join or create a collection to see activity here.
+              </p>
+              <div className="flex justify-center">
+                <Button variant="secondary" asChild>
+                  <Link href="/collections">Browse Collections</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </Section>
 
       {/* Pending Confirmations */}
       <Section title="PENDING CONFIRMATIONS">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-text-2 text-center py-4">
-              No pending match confirmations.
-            </p>
-          </CardContent>
-        </Card>
+        {pendingConfirmations.length > 0 ? (
+          <div className="space-y-3">
+            {pendingConfirmations.map((confirmation) => (
+              <PendingConfirmationCard key={confirmation.participantId} confirmation={confirmation} />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-text-2 text-center py-4">
+                No pending match confirmations.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </Section>
 
       {/* Recent Matches */}
-      <Section title="RECENT MATCHES">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-text-2 text-center py-4">
-              You haven't recorded any matches yet.
-            </p>
-            <div className="flex justify-center">
-              <Button variant="secondary" asChild>
-                <Link href="/matches/new">Record Your First Match</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </Section>
-
-      {/* Collections Activity */}
-      <Section title="COLLECTION ACTIVITY">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-text-2 text-center py-4">
-              Join or create a collection to see activity here.
-            </p>
-            <div className="flex justify-center">
-              <Button variant="secondary" asChild>
-                <Link href="/collections">Browse Collections</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </Section>
-    </div>
-  );
-}
-
-// ============================================
-// Shared Components
-// ============================================
-
-function StatCard({ 
-  label, 
-  value, 
-  sublabel 
-}: { 
-  label: string; 
-  value: string; 
-  sublabel?: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-sublabel text-text-2 mb-1">{label}</p>
-        <p className="text-stat text-text-1">{value}</p>
-        {sublabel && (
-          <p className="text-mono-xs text-text-2 mt-1">{sublabel}</p>
+      <Section 
+        title="YOUR RECENT MATCHES" 
+        action={
+          <Link href="/matches" className="text-sm text-accent hover:text-accent-fill transition-colors">
+            View All
+          </Link>
+        }
+      >
+        {recentMatches.length > 0 ? (
+          <div className="space-y-4">
+            {recentMatches.map((match) => (
+              <MatchPreviewCard key={match.id} match={match} showElo />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-text-2 text-center py-4">
+                You haven't recorded any matches yet.
+              </p>
+              <div className="flex justify-center">
+                <Button variant="secondary" asChild>
+                  <Link href="/matches/new">Record Your First Match</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
-      </CardContent>
-    </Card>
-  );
-}
-
-// ============================================
-// Global Dashboard Components
-// ============================================
-
-function LeaderboardPreview({ entries }: { entries: LeaderboardEntry[] }) {
-  return (
-    <div className="divide-y divide-card-border">
-      {entries.map((entry) => (
-        <Link
-          key={entry.id}
-          href={`/player/${entry.username}`}
-          className="flex items-center gap-4 px-4 py-3 hover:bg-bg-raised/50 transition-colors"
-        >
-          {/* Rank */}
-          <span className={cn(
-            "w-6 text-center font-display font-bold",
-            entry.rank === 1 && "text-gold",
-            entry.rank === 2 && "text-text-2",
-            entry.rank === 3 && "text-[#cd7f32]", // bronze
-            entry.rank > 3 && "text-text-3"
-          )}>
-            {entry.rank}
-          </span>
-
-          {/* Avatar */}
-          <Avatar src={entry.avatarUrl} fallback={entry.username} size="sm" />
-
-          {/* Name & Stats */}
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-text-1 truncate">{entry.username}</p>
-            <p className="text-mono-xs text-text-2">
-              {entry.matchesPlayed} matches • {entry.winRate}% WR
-            </p>
-          </div>
-
-          {/* Rating */}
-          <RatingDisplay rating={entry.rating} />
-        </Link>
-      ))}
-    </div>
-  );
-}
-
-function TopCommandersList({ commanders }: { commanders: DeckWithStats[] }) {
-  return (
-    <div className="divide-y divide-card-border">
-      {commanders.map((deck, i) => (
-        <div
-          key={deck.id}
-          className="flex items-center gap-4 px-4 py-3"
-        >
-          {/* Rank */}
-          <span className={cn(
-            "w-6 text-center font-display font-bold",
-            i === 0 && "text-gold",
-            i === 1 && "text-text-2",
-            i === 2 && "text-[#cd7f32]",
-            i > 2 && "text-text-3"
-          )}>
-            {i + 1}
-          </span>
-
-          {/* Commander card image */}
-          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-surface shrink-0">
-            <Image
-              src={buildCommanderImageUrl(deck.commanderName, "art_crop")}
-              alt={deck.commanderName}
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-
-          {/* Color Identity */}
-          <ColorIdentity colors={deck.colorIdentity} />
-
-          {/* Commander Name */}
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-text-1 truncate">{deck.commanderName}</p>
-            <p className="text-mono-xs text-text-2">
-              {deck.stats.gamesPlayed} games • {deck.stats.winRate}% WR
-            </p>
-          </div>
-
-          {/* Bracket */}
-          <BracketBadge bracket={deck.bracket} />
-        </div>
-      ))}
+      </Section>
     </div>
   );
 }

@@ -135,3 +135,22 @@ export type AddMatchToCollectionPayload = {
 export type MatchApprovalResponsePayload = {
   approvalStatus: 'approved' | 'rejected'
 }
+
+/**
+ * User's activity within a collection
+ */
+export type CollectionActivity = {
+  collection: CollectionSummary
+  userStats: {
+    gamesPlayed: number
+    wins: number
+    winRate: number
+    rating: number
+    ratingDelta: number
+  }
+  topPlayer: {
+    profile: ProfileSummary
+    winRate: number
+    gamesPlayed: number
+  }
+}

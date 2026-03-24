@@ -4,6 +4,7 @@
 
 import type {
   Collection,
+  CollectionActivity,
   CollectionMember,
   CollectionMemberWithProfile,
   CollectionSummary,
@@ -109,4 +110,68 @@ export function createMockCollectionWithMembers(
     members,
     ...overrides,
   }
+}
+
+/**
+ * Create mock collection activity with user stats
+ */
+export function createMockCollectionActivity(
+  overrides: Partial<CollectionActivity> = {}
+): CollectionActivity {
+  const gamesPlayed = 12 + Math.floor(Math.random() * 20)
+  const wins = Math.floor(gamesPlayed * (0.35 + Math.random() * 0.3))
+  const rating = 1000 + Math.floor(Math.random() * 400)
+  const ratingDelta = Math.floor(Math.random() * 50) * (Math.random() > 0.5 ? 1 : -1)
+
+  return {
+    collection: createMockCollectionSummary(),
+    userStats: {
+      gamesPlayed,
+      wins,
+      winRate: Math.round((wins / gamesPlayed) * 100),
+      rating,
+      ratingDelta,
+    },
+    topPlayer: {
+      profile: createMockProfileSummary(),
+      winRate: 55 + Math.floor(Math.random() * 20),
+      gamesPlayed: 15 + Math.floor(Math.random() * 30),
+    },
+    ...overrides,
+  }
+}
+
+/**
+ * Create multiple mock collection activities with variety
+ */
+export function createMockCollectionActivities(count = 3): CollectionActivity[] {
+  const collectionNames = [
+    'Friday Night Commander',
+    'CEDH League',
+    'Casual Pod',
+    'Office Games',
+    'Summer Tournament',
+  ]
+
+  return Array.from({ length: count }, (_, i) => {
+    const gamesPlayed = 8 + Math.floor(Math.random() * 25)
+    const wins = Math.floor(gamesPlayed * (0.3 + Math.random() * 0.4))
+    const rating = 950 + Math.floor(Math.random() * 350)
+    const ratingDelta = Math.floor(Math.random() * 40) * (Math.random() > 0.4 ? 1 : -1)
+
+    return createMockCollectionActivity({
+      collection: createMockCollectionSummary({
+        name: collectionNames[i % collectionNames.length],
+        memberCount: 4 + Math.floor(Math.random() * 8),
+        matchCount: 15 + Math.floor(Math.random() * 50),
+      }),
+      userStats: {
+        gamesPlayed,
+        wins,
+        winRate: Math.round((wins / gamesPlayed) * 100),
+        rating,
+        ratingDelta,
+      },
+    })
+  })
 }

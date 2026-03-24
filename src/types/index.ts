@@ -81,6 +81,7 @@ export type {
   AddMatchToCollectionPayload,
   ApprovalStatus,
   Collection,
+  CollectionActivity,
   CollectionMatch,
   CollectionMember,
   CollectionMemberWithProfile,

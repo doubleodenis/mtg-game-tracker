@@ -42,11 +42,9 @@
     - [x] Platform stats (total matches, active players)
     - [x] Sign up call to action
   - [ ] **Logged In — Personal Dashboard**
-    - [ ] Rating view (per-format rating, history chart, recent matches with delta)
-    - [ ] Win Rate view (overall + per-format, per-deck, streaks)
-    - [ ] Toggle between the two views
+    - [ ] Stats visualization (Different ratings per format, win rate, etc)
     - [ ] Pending confirmation prompts
-    - [ ] Pods/collections activity feed
+    - [ ] Pods/collections activity (show recent delta change in most recent changed collections)
 - [ ] Match Log
   - [ ] Full history list
   - [ ] Filters (format, date, deck, result)

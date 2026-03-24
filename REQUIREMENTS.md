@@ -471,26 +471,21 @@ Showcases platform activity and provides social proof to visitors:
 - Most played commanders/decks
 - Platform stats (total matches played, active players, etc.)
 - Clear call to action to sign up
+- Call to action login to view your matches
 
 **Logged In — Personal Dashboard**
 
-Two primary views, toggleable:
-
-*Rating View*
-- Current Rating per format (reflects opponent strength, bracket differential, experience)
-- Rating history chart over time
+- Rating history chart over time 
 - Pending match confirmations
 - Recent matches with rating delta per match
-
-*Win Rate View*
-- Overall win rate and per-format win rate
-- Win rate per deck/commander
+- Win rate per format
+- Best commander (highest win rate overall)
 - Win/loss record vs. specific opponents
 - Current and longest win streak
+- Pods/collections activity feed
 
 Both views show:
 - Recent match activity and link to the full match log
-- Pods/collections activity feed
 - Quick action to log a new match
 
 ### Collection Dashboard

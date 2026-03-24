@@ -51,6 +51,8 @@ export {
 // Re-export collection factories
 export {
   createMockCollection,
+  createMockCollectionActivities,
+  createMockCollectionActivity,
   createMockCollectionMember,
   createMockCollectionMemberWithProfile,
   createMockCollectionSummary,
@@ -73,6 +75,8 @@ export {
   createMockParticipantData,
   createMockParticipantDisplayInfo,
   createMockPartiallyConfirmedMatch,
+  createMockPendingConfirmation,
+  createMockPendingConfirmations,
   createMockUserMatches,
 } from './match'
 

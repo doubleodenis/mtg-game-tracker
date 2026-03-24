@@ -89,7 +89,7 @@ export type MatchWithParticipants = MatchWithDetails & {
 export type MatchSummary = {
   id: UUID
   formatName: string
-  formatSlug: string
+  formatSlug: FormatSlug
   playedAt: ISODateString
   participantCount: number
   confirmedCount: number
