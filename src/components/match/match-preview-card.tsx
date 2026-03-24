@@ -282,6 +282,11 @@ export function MatchPreviewCard({
                 {getBracketName(avgBracket)}
               </span>
 
+              {/* Match date */}
+              <span className="text-xs text-text-2">
+                {new Date(match.playedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </span>
+
               {/* ELO delta - only on personal dashboard */}
               {showElo && userParticipant?.ratingDelta && (
                 <span

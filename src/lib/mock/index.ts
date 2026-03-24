@@ -62,6 +62,7 @@ export {
 // Re-export match factories
 export {
   createMockAllPlaceholderMatch,
+  createMockCollectionMatches,
   createMockDashboardMatches,
   createMockMatch,
   createMockMatchCardData,

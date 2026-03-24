@@ -38,9 +38,14 @@ export function LeaderboardPreview({ entries }: LeaderboardPreviewProps) {
           <div className="flex-1 min-w-0">
             <p className="font-medium text-text-1 truncate">{entry.username}</p>
             <p className="text-mono-xs text-text-2">
-              {entry.matchesPlayed} matches • {entry.winRate}% WR
+              {entry.matchesPlayed} matches
             </p>
           </div>
+
+          {/* Win Rate */}
+          <span className="text-sm font-medium text-text-2 w-14 text-right">
+            {entry.winRate}% WR
+          </span>
 
           {/* Rating */}
           <RatingDisplay rating={entry.rating} />

@@ -550,3 +550,69 @@ export function createMockPendingConfirmations(count = 3): PendingConfirmation[]
     })
   })
 }
+
+// ============================================
+// Collection Match Factories
+// ============================================
+
+/**
+ * Create mock matches for a collection (no user-specific data)
+ * Generates a variety of matches across formats and dates
+ */
+export function createMockCollectionMatches(count = 10): MatchCardData[] {
+  const configs: Array<{
+    format: FormatSlug
+    formatName: string
+    participantCount: number
+    bracket: Bracket
+  }> = [
+    { format: 'ffa', formatName: 'Free For All', participantCount: 4, bracket: 2 },
+    { format: 'pentagram', formatName: 'Pentagram', participantCount: 5, bracket: 3 },
+    { format: '2v2', formatName: '2v2', participantCount: 4, bracket: 2 },
+    { format: '3v3', formatName: '3v3', participantCount: 6, bracket: 2 },
+    { format: '1v1', formatName: '1v1', participantCount: 2, bracket: 4 },
+  ]
+
+  return Array.from({ length: count }, (_, i) => {
+    const config = configs[i % configs.length]
+    const hasTeams = isTeamFormat(config.format)
+    
+    // Randomize winner
+    const winnerIndex = Math.floor(Math.random() * config.participantCount)
+    const winningTeam = Math.random() > 0.5 ? 'A' : 'B'
+    
+    // Pre-generate participant IDs
+    const participantIds = Array.from({ length: config.participantCount }, () => generateMockId())
+
+    const participants = Array.from({ length: config.participantCount }, (_, j) => {
+      const team = getTeamForParticipant(config.format, j, config.participantCount)
+      const isWinner = hasTeams
+        ? team === winningTeam
+        : j === winnerIndex
+
+      return createMockParticipantDisplayInfo({
+        id: participantIds[j],
+        isWinner,
+        team,
+        deck: createMockDeckSummary({ bracket: config.bracket }),
+        ratingDelta: null, // No user-specific rating in collection view
+        participantData: getParticipantDataForFormat(config.format, j, participantIds),
+      })
+    })
+
+    // Stagger dates - more recent matches first
+    const daysAgo = Math.floor(i * 1.5) // 0, 1, 3, 4, 6, 7, 9...
+
+    return {
+      ...createMockMatchSummary({
+        participantCount: config.participantCount,
+        formatSlug: config.format,
+        formatName: config.formatName,
+        winnerNames: [participants.find(p => p.isWinner)?.name ?? ''],
+        playedAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
+      }),
+      participants,
+      userParticipant: null, // No specific user context
+    }
+  })
+}

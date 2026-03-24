@@ -36,7 +36,9 @@ import {
   ErrorFallback,
   ErrorFallbackCard,
 } from "@/components/ui";
+import { MatchLog } from "@/components/match";
 import { Sidebar, TabNav, PageHeader, type NavItem } from "@/components/layout";
+import { createMockUserMatches, generateMockId } from "@/lib/mock";
 import type { FormatSlug } from "@/types/format";
 import type { ManaColor } from "@/app/_design-system";
 import type { Bracket } from "@/components/ui/bracket-indicator";
@@ -397,6 +399,52 @@ export default function DesignSystemPage() {
                 error={new Error("Failed to load")}
                 onReset={() => alert("Retry clicked")}
               />
+            </Row>
+          </div>
+        </Section>
+
+        {/* Match Log */}
+        <Section title="Match Log">
+          <div className="space-y-8">
+            <Row label="With header & date grouping">
+              <div className="w-full max-w-4xl">
+                <MatchLog
+                  matches={createMockUserMatches(generateMockId())}
+                  title="Match History"
+                  showElo
+                  groupByDate
+                  headerAction={<Button size="sm" variant="outline">View All</Button>}
+                />
+              </div>
+            </Row>
+            <Row label="No date grouping">
+              <div className="w-full max-w-4xl">
+                <MatchLog
+                  matches={createMockUserMatches(generateMockId()).slice(0, 3)}
+                  groupByDate={false}
+                />
+              </div>
+            </Row>
+            <Row label="Loading state">
+              <div className="w-full max-w-4xl">
+                <MatchLog
+                  matches={[]}
+                  isLoading
+                  skeletonCount={3}
+                  title="Loading Matches"
+                />
+              </div>
+            </Row>
+            <Row label="Empty state">
+              <div className="w-full max-w-4xl">
+                <MatchLog
+                  matches={[]}
+                  title="Collection Matches"
+                  emptyTitle="No matches in this collection"
+                  emptyDescription="Matches added to this collection will appear here"
+                  emptyAction={<Button size="sm">Log Match</Button>}
+                />
+              </div>
             </Row>
           </div>
         </Section>

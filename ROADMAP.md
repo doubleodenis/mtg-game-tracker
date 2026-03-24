@@ -63,9 +63,9 @@
   - [ ] Deck list view
   - [ ] Add / edit / retire deck form (including required bracket field)
   - [ ] Per-deck stats (win rate, games played)
-- [ ] Collection Dashboard
-  - [ ] Collection-scoped rating leaderboard
-  - [ ] Activity feed and match history
+- [x] Collection Dashboard
+  - [x] Collection-scoped rating leaderboard
+  - [x] Activity feed and match history
   - [ ] Per-member win rates
 
 ---
