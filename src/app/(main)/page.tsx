@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import Image from "next/image";
+// import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Avatar, FormatBadge, RatingDisplay, WLBadge, ColorIdentity, BracketBadge } from "@/components/ui";
+import { Avatar, Badge, FormatBadge, RatingDisplay, WLBadge, ColorIdentity, BracketBadge } from "@/components/ui";
 import { PageHeader, Section } from "@/components/layout";
+import { MatchPreviewCard } from "@/components/match/match-preview-card";
 import { cn, formatRelativeTime } from "@/lib/utils";
+import { buildCommanderImageUrl } from "@/lib/scryfall/api";
 import {
   createMockLeaderboard,
   createMockMatchCardData,
@@ -13,8 +16,10 @@ import {
 import type { LeaderboardEntry, MatchCardData, DeckWithStats } from "@/types";
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // TODO: Re-enable Supabase auth when backend is configured
+  // const supabase = await createClient();
+  // const { data: { user } } = await supabase.auth.getUser();
+  const user = null as { id: string } | null;
 
   if (user) {
     return <PersonalDashboard userId={user.id} />;
@@ -123,15 +128,15 @@ function GlobalDashboard() {
 // ============================================
 
 async function PersonalDashboard({ userId }: { userId: string }) {
-  const supabase = await createClient();
-  
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("username, display_name")
-    .eq("id", userId)
-    .single() as { data: { username: string; display_name: string | null } | null };
-
-  const displayName = profile?.display_name ?? profile?.username ?? "Commander";
+  // TODO: Re-enable Supabase when backend is configured
+  // const supabase = await createClient();
+  // const { data: profile } = await supabase
+  //   .from("profiles")
+  //   .select("username, display_name")
+  //   .eq("id", userId)
+  //   .single() as { data: { username: string; display_name: string | null } | null };
+  // const displayName = profile?.display_name ?? profile?.username ?? "Commander";
+  const displayName = "Commander";
 
   return (
     <div className="space-y-8">
@@ -270,69 +275,6 @@ function LeaderboardPreview({ entries }: { entries: LeaderboardEntry[] }) {
   );
 }
 
-function MatchPreviewCard({ match }: { match: MatchCardData }) {
-  const winner = match.participants.find(p => p.isWinner);
-
-  return (
-    <Link
-      href={`/match/${match.id}`}
-      className="block"
-    >
-      <Card className="hover:border-card-border-hi transition-colors">
-        <CardContent className="p-4">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <FormatBadge format={match.formatSlug as 'ffa' | '1v1' | '2v2' | '3v3' | 'pentagram'} />
-              {winner && (
-                <span className="text-sm text-text-2">
-                  Winner: <span className="text-text-1">{winner.name}</span>
-                </span>
-              )}
-            </div>
-            <span className="text-mono-xs text-text-2">
-              {formatRelativeTime(match.playedAt)}
-            </span>
-          </div>
-
-          {/* Participants */}
-          <div className="flex items-center gap-3 overflow-x-auto pb-1">
-            {match.participants.map((participant) => (
-              <div
-                key={participant.id}
-                className={cn(
-                  "flex items-center gap-2 px-2 py-1 rounded-md shrink-0",
-                  participant.isWinner && "bg-win-subtle ring-1 ring-win-ring"
-                )}
-              >
-                <Avatar
-                  src={participant.avatarUrl}
-                  fallback={participant.name}
-                  size="sm"
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-text-1 truncate max-w-25">
-                    {participant.name}
-                  </p>
-                  {participant.deck && (
-                    <div className="flex items-center gap-1">
-                      <ColorIdentity colors={participant.deck.colorIdentity} size="sm" />
-                      <BracketBadge bracket={participant.deck.bracket} />
-                    </div>
-                  )}
-                </div>
-                {participant.isWinner && (
-                  <span className="text-gold">👑</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
-
 function TopCommandersList({ commanders }: { commanders: DeckWithStats[] }) {
   return (
     <div className="divide-y divide-card-border">
@@ -351,6 +293,17 @@ function TopCommandersList({ commanders }: { commanders: DeckWithStats[] }) {
           )}>
             {i + 1}
           </span>
+
+          {/* Commander card image */}
+          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-surface shrink-0">
+            <Image
+              src={buildCommanderImageUrl(deck.commanderName, "art_crop")}
+              alt={deck.commanderName}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
 
           {/* Color Identity */}
           <ColorIdentity colors={deck.colorIdentity} />

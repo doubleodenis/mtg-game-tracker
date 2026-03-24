@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+// import { createClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { NavbarSearch } from "./navbar-search";
@@ -11,20 +11,22 @@ type NavbarProfile = {
 };
 
 export async function Navbar() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // TODO: Re-enable Supabase auth when backend is configured
+  // const supabase = await createClient();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
+  const user = null as { id: string } | null;
 
   let profile: NavbarProfile | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("username, display_name, avatar_url")
-      .eq("id", user.id)
-      .single();
-    profile = data as NavbarProfile | null;
-  }
+  // if (user) {
+  //   const { data } = await supabase
+  //     .from("profiles")
+  //     .select("username, display_name, avatar_url")
+  //     .eq("id", user.id)
+  //     .single();
+  //   profile = data as NavbarProfile | null;
+  // }
 
   return (
     <header className="sticky top-0 z-50 w-full h-topbar bg-bg-surface/90 backdrop-blur-md border-b border-card-border">

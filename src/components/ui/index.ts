@@ -12,6 +12,7 @@ export { RatingDelta, RatingDisplay } from "./rating-delta";
 export { ConfirmationStatus, ConfirmationCount, type ConfirmationState } from "./confirmation-status";
 export { WLBadge } from "./wl-badge";
 export { ManaPip, ColorIdentity } from "./mana-pip";
+export { CommanderCard } from "./commander-card";
 
 // Loading & State
 export {

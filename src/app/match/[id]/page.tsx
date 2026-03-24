@@ -5,8 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/features/navbar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime, formatDuration } from "@/lib/utils";
+import { CommanderCard } from "@/components/ui/commander-card";
+import { formatDuration } from "@/lib/utils";
+import { buildCommanderImageUrl } from "@/lib/scryfall/api";
 
 // Type definitions
 type MatchRow = {
@@ -253,13 +254,14 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     </div>
                   )}
                 </div>
-                {winner.commander_image_uri && (
+                {winner.commander_name && (
                   <div className="relative h-24 w-18 rounded-lg overflow-hidden hidden sm:block">
                     <Image
-                      src={winner.commander_image_uri}
-                      alt={winner.commander_name || "Commander"}
+                      src={winner.commander_image_uri || buildCommanderImageUrl(winner.commander_name)}
+                      alt={winner.commander_name}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                   </div>
                 )}
@@ -279,25 +281,43 @@ export default async function MatchDetailPage({ params }: PageProps) {
               <div className="grid md:grid-cols-2 gap-6">
                 {teams.map((team, teamIndex) => (
                   <div key={teamIndex}>
-                    <div className="text-sm font-medium text-foreground-muted mb-3">
+                    <div className="text-sm font-medium text-foreground-muted mb-4">
                       Team {teamIndex + 1}
                       {team.some((p) => p.is_winner) && (
                         <Badge variant="win" className="ml-2">Winners</Badge>
                       )}
                     </div>
-                    <div className="space-y-3">
+                    <div className="flex flex-wrap justify-center gap-4">
                       {team.map((participant) => (
-                        <ParticipantCard key={participant.id} participant={participant} />
+                        <CommanderCard
+                          key={participant.id}
+                          commanderName={participant.commander_name}
+                          playerName={participant.name}
+                          avatarUrl={participant.avatar_url}
+                          isWinner={participant.is_winner}
+                          isGuest={participant.is_guest}
+                          size="md"
+                          href={participant.username ? `/player/${participant.username}` : undefined}
+                        />
                       ))}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              // FFA layout
-              <div className="grid sm:grid-cols-2 gap-4">
+              // FFA layout - commander cards in a responsive grid
+              <div className="flex flex-wrap justify-center gap-6">
                 {participants.map((participant) => (
-                  <ParticipantCard key={participant.id} participant={participant} />
+                  <CommanderCard
+                    key={participant.id}
+                    commanderName={participant.commander_name}
+                    playerName={participant.name}
+                    avatarUrl={participant.avatar_url}
+                    isWinner={participant.is_winner}
+                    isGuest={participant.is_guest}
+                    size="lg"
+                    href={participant.username ? `/player/${participant.username}` : undefined}
+                  />
                 ))}
               </div>
             )}
@@ -316,87 +336,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
           </Card>
         )}
       </main>
-    </div>
-  );
-}
-
-function ParticipantCard({
-  participant,
-}: {
-  participant: {
-    id: string;
-    name: string;
-    username?: string;
-    avatar_url: string | null;
-    commander_name: string | null;
-    commander_image_uri: string | null;
-    placement: number | null;
-    is_winner: boolean;
-    is_guest: boolean;
-  };
-}) {
-  return (
-    <div
-      className={`flex items-center gap-4 p-4 rounded-lg transition-colors ${
-        participant.is_winner
-          ? "bg-win/10 ring-1 ring-win/30"
-          : "bg-surface hover:bg-surface-hover"
-      }`}
-    >
-      {/* Commander Image */}
-      {participant.commander_image_uri ? (
-        <div className="relative h-16 w-12 rounded overflow-hidden flex-shrink-0">
-          <Image
-            src={participant.commander_image_uri}
-            alt={participant.commander_name || "Commander"}
-            fill
-            className="object-cover"
-          />
-        </div>
-      ) : (
-        <div className="h-16 w-12 rounded bg-surface-hover flex items-center justify-center text-foreground-muted text-xs">
-          ?
-        </div>
-      )}
-
-      {/* Player Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          {participant.username ? (
-            <Link
-              href={`/player/${participant.username}`}
-              className="font-medium hover:text-accent transition-colors truncate"
-            >
-              {participant.name}
-            </Link>
-          ) : (
-            <span className="font-medium truncate">{participant.name}</span>
-          )}
-          {participant.is_winner && (
-            <span className="text-yellow-500">👑</span>
-          )}
-          {participant.is_guest && (
-            <Badge variant="outline" className="text-[10px]">Guest</Badge>
-          )}
-        </div>
-        {participant.commander_name && (
-          <div className="text-sm text-foreground-muted truncate">
-            {participant.commander_name}
-          </div>
-        )}
-        {participant.placement && !participant.is_winner && (
-          <div className="text-xs text-foreground-subtle">
-            #{participant.placement} place
-          </div>
-        )}
-      </div>
-
-      {/* Avatar */}
-      <Avatar
-        src={participant.avatar_url}
-        fallback={participant.name}
-        size="md"
-      />
     </div>
   );
 }
