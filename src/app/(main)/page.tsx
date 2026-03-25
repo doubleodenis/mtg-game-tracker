@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader, Section } from "@/components/layout";
 import { MatchPreviewCard } from "@/components/match/match-preview-card";
 import { DashboardStatCard } from "@/components/features/dashboard-stat-card";
-import { LeaderboardPreview } from "@/components/features/leaderboard-preview";
+import { LeaderboardWithFilter } from "@/components/features/leaderboard-with-filter";
 import { TopCommandersList } from "@/components/features/top-commanders-list";
 import { PendingConfirmationCard } from "@/components/features/pending-confirmation-card";
 import { CollectionActivityCard } from "@/components/features/collection-activity-card";
@@ -92,7 +92,7 @@ function GlobalDashboard() {
       }>
         <Card>
           <CardContent className="p-0">
-            <LeaderboardPreview entries={mockLeaderboard} />
+            <LeaderboardWithFilter entries={mockLeaderboard} />
           </CardContent>
         </Card>
       </Section>

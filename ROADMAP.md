@@ -66,7 +66,7 @@
 - [x] Collection Dashboard
   - [x] Collection-scoped rating leaderboard
   - [x] Activity feed and match history
-  - [ ] Per-member win rates
+  - [x] Per-member win rates
 
 ---
 

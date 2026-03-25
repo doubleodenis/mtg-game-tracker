@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout";
-import { LeaderboardPreview } from "@/components/features/leaderboard-preview";
+import { LeaderboardWithFilter } from "@/components/features/leaderboard-with-filter";
 import {
   createMockLeaderboard,
   resetMockIds,
@@ -32,7 +32,7 @@ export default async function CollectionLeaderboardPage({ params }: PageProps) {
 
       <Card>
         <CardContent className="p-0">
-          <LeaderboardPreview entries={leaderboard} />
+          <LeaderboardWithFilter entries={leaderboard} />
         </CardContent>
       </Card>
     </div>

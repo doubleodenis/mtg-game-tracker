@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge, Avatar, Button } from "@/components/ui";
 import { PageHeader, Section } from "@/components/layout";
 import { MatchLog } from "@/components/match";
-import { LeaderboardPreview } from "@/components/features/leaderboard-preview";
+import { LeaderboardWithFilter } from "@/components/features/leaderboard-with-filter";
 import { TopCommandersList } from "@/components/features/top-commanders-list";
 import { DashboardStatCard } from "@/components/features/dashboard-stat-card";
 import {
@@ -37,6 +37,14 @@ export default async function CollectionPage({ params }: PageProps) {
   const topCommanders = Array.from({ length: 5 }, (_, i) =>
     createMockDeckWithStats({ id: `commander-${i}` })
   );
+
+  // Get top commander by win rate
+  const topCommander = topCommanders.length > 0 ? topCommanders[0] : null;
+  
+  // Get highest win rate player from leaderboard
+  const topWinRatePlayer = leaderboard.length > 0 
+    ? leaderboard.reduce((best, entry) => entry.winRate > best.winRate ? entry : best, leaderboard[0])
+    : null;
 
   // Mock: check if user is a member (for showing member-only features)
   const currentUserId = "mock-user-123";
@@ -73,16 +81,14 @@ export default async function CollectionPage({ params }: PageProps) {
             value={collection.members.length.toString()}
           />
           <DashboardStatCard
-            label="Active Players"
-            value={collection.members.length.toString()}
+            label="Top Commander WR"
+            value={topCommander ? `${topCommander.stats?.winRate ?? 0}%` : 'N/A'}
+            sublabel={topCommander ? topCommander.commanderName : undefined}
           />
           <DashboardStatCard
-            label="This Week"
-            value={recentMatches.filter((m) => {
-              const playedAt = new Date(m.playedAt);
-              const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-              return playedAt >= weekAgo;
-            }).length.toString()}
+            label="Highest Win Rate"
+            value={topWinRatePlayer ? `${topWinRatePlayer.winRate}%` : 'N/A'}
+            sublabel={topWinRatePlayer?.username}
           />
         </div>
       </Section>
@@ -101,7 +107,7 @@ export default async function CollectionPage({ params }: PageProps) {
       >
         <Card>
           <CardContent className="p-0">
-            <LeaderboardPreview entries={leaderboard} />
+            <LeaderboardWithFilter entries={leaderboard} />
           </CardContent>
         </Card>
       </Section>
