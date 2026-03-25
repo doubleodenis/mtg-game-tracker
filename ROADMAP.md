@@ -52,13 +52,17 @@
     - [x] FFA format (all participants in row)
     - [x] Pentagram format with ally/enemy indicators
 - [ ] Match Log
-  - [ ] Full history list
-  - [ ] Filters (format, date, deck, result)
+  - [x] Full history list with date grouping
+  - [x] Filters (format, result)
   - [ ] Match detail view (participants, decks, rating deltas)
 - [ ] Profile Page
-  - [ ] Public stats (rating by format, win rates, deck breakdown)
-  - [ ] Match history (paginated)
-  - [ ] Head-to-head record
+  - [x] Public stats (rating by format, win rates, deck breakdown)
+  - [x] Match history with filters
+  - [x] Head-to-head comparison (when viewing another player's profile)
+    - [x] Win rate as enemies
+    - [x] Win rate as teammates
+    - [x] Per-format record against them
+    - [x] Best commander vs their decks
 - [ ] Deck Manager
   - [ ] Deck list view
   - [ ] Add / edit / retire deck form (including required bracket field)

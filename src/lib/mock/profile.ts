@@ -179,3 +179,150 @@ export function createMockFormatStats(): FormatStatEntry[] {
     }
   }).sort((a, b) => b.matchesPlayed - a.matchesPlayed)
 }
+
+/**
+ * Record when playing as enemies or teammates
+ */
+export type RelationshipRecord = {
+  wins: number
+  losses: number
+  matchesPlayed: number
+  winRate: number
+}
+
+/**
+ * Format-specific record against a player
+ */
+export type FormatVsRecord = {
+  formatSlug: string
+  formatName: string
+  wins: number
+  losses: number
+  matchesPlayed: number
+  winRate: number
+}
+
+/**
+ * Commander performance against a specific opponent
+ */
+export type CommanderVsRecord = {
+  commanderName: string
+  colorIdentity: ('W' | 'U' | 'B' | 'R' | 'G')[]
+  wins: number
+  losses: number
+  matchesPlayed: number
+  winRate: number
+}
+
+/**
+ * Comprehensive player comparison data
+ */
+export type PlayerComparisonData = {
+  you: ProfileSummary & { stats: PlayerStats; rating: number }
+  opponent: ProfileSummary & { stats: PlayerStats; rating: number }
+  asEnemies: RelationshipRecord
+  asTeammates: RelationshipRecord
+  byFormat: FormatVsRecord[]
+  bestCommander: CommanderVsRecord | null
+}
+
+/**
+ * Create mock comparison data between current user and another player
+ */
+export function createMockPlayerComparison(
+  opponent: ProfileSummary,
+  opponentStats: PlayerStats,
+  opponentRating: number
+): PlayerComparisonData {
+  // Create "you" (current user) with some variation
+  const youProfile = createMockProfile({ username: 'you_gamer' })
+  const youStats = createMockPlayerStats({ totalMatches: 72, wins: 34 })
+  const youRating = 1050 + Math.floor(Math.random() * 200)
+
+  // Generate as enemies record
+  const enemyMatches = 8 + Math.floor(Math.random() * 20)
+  const enemyWins = Math.floor(enemyMatches * (0.3 + Math.random() * 0.4))
+  const enemyLosses = enemyMatches - enemyWins
+
+  // Generate as teammates record
+  const teammateMatches = 3 + Math.floor(Math.random() * 10)
+  const teammateWins = Math.floor(teammateMatches * (0.4 + Math.random() * 0.3))
+  const teammateLosses = teammateMatches - teammateWins
+
+  // Generate format-specific records
+  const formats = [
+    { slug: 'ffa', name: 'FFA' },
+    { slug: '1v1', name: '1v1' },
+    { slug: '2v2', name: '2v2' },
+    { slug: 'pentagram', name: 'Pentagram' },
+  ]
+
+  const byFormat: FormatVsRecord[] = formats
+    .map((format) => {
+      const matchesPlayed = Math.floor(Math.random() * 12)
+      if (matchesPlayed === 0) return null
+      const wins = Math.floor(matchesPlayed * (0.2 + Math.random() * 0.6))
+      return {
+        formatSlug: format.slug,
+        formatName: format.name,
+        wins,
+        losses: matchesPlayed - wins,
+        matchesPlayed,
+        winRate: Math.round((wins / matchesPlayed) * 100),
+      }
+    })
+    .filter((f): f is FormatVsRecord => f !== null)
+    .sort((a, b) => b.matchesPlayed - a.matchesPlayed)
+
+  // Generate best commander against them
+  const commanders = [
+    { name: "Atraxa, Praetors' Voice", colors: ['W', 'U', 'B', 'G'] as const },
+    { name: 'Korvold, Fae-Cursed King', colors: ['B', 'R', 'G'] as const },
+    { name: "Yuriko, the Tiger's Shadow", colors: ['U', 'B'] as const },
+    { name: 'Krenko, Mob Boss', colors: ['R'] as const },
+  ]
+
+  const bestCommanderData = commanders[Math.floor(Math.random() * commanders.length)]
+  const cmdMatches = 3 + Math.floor(Math.random() * 8)
+  const cmdWins = Math.floor(cmdMatches * (0.5 + Math.random() * 0.4))
+
+  const bestCommander: CommanderVsRecord = {
+    commanderName: bestCommanderData.name,
+    colorIdentity: [...bestCommanderData.colors],
+    wins: cmdWins,
+    losses: cmdMatches - cmdWins,
+    matchesPlayed: cmdMatches,
+    winRate: Math.round((cmdWins / cmdMatches) * 100),
+  }
+
+  return {
+    you: {
+      id: youProfile.id,
+      username: youProfile.username,
+      avatarUrl: youProfile.avatarUrl,
+      stats: youStats,
+      rating: youRating,
+    },
+    opponent: {
+      id: opponent.id,
+      username: opponent.username,
+      avatarUrl: opponent.avatarUrl,
+      stats: opponentStats,
+      rating: opponentRating,
+    },
+    asEnemies: {
+      wins: enemyWins,
+      losses: enemyLosses,
+      matchesPlayed: enemyMatches,
+      winRate: Math.round((enemyWins / enemyMatches) * 100),
+    },
+    asTeammates: {
+      wins: teammateWins,
+      losses: teammateLosses,
+      matchesPlayed: teammateMatches,
+      winRate: Math.round((teammateWins / teammateMatches) * 100),
+    },
+    byFormat,
+    bestCommander,
+  }
+}

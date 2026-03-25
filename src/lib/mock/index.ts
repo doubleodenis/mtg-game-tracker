@@ -21,13 +21,14 @@ export {
   createMockFormatStats,
   createMockLeaderboard,
   createMockLeaderboardEntry,
+  createMockPlayerComparison,
   createMockPlayerStats,
   createMockProfile,
   createMockProfileSummary,
   createMockProfileWithStats,
 } from './profile'
 
-export type { ColorStats, FormatStatEntry } from './profile'
+export type { ColorStats, CommanderVsRecord, FormatStatEntry, FormatVsRecord, PlayerComparisonData, RelationshipRecord } from './profile'
 
 // Re-export deck factories
 export {

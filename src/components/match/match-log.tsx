@@ -1,9 +1,13 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { MatchPreviewCard } from "./match-preview-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SkeletonMatchCard } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import type { MatchCardData } from "@/types";
+import type { FormatSlug } from "@/types/format";
 
 // ============================================
 // Date Grouping Utilities
@@ -74,6 +78,118 @@ function MatchIcon({ className }: { className?: string }) {
 }
 
 // ============================================
+// Filter Types & Components
+// ============================================
+
+type ResultFilter = "all" | "wins" | "losses";
+
+type MatchFilters = {
+  format: FormatSlug | "all";
+  result: ResultFilter;
+};
+
+const FORMAT_OPTIONS: { value: FormatSlug | "all"; label: string }[] = [
+  { value: "all", label: "All Formats" },
+  { value: "ffa", label: "FFA" },
+  { value: "1v1", label: "1v1" },
+  { value: "2v2", label: "2v2" },
+  { value: "3v3", label: "3v3" },
+  { value: "pentagram", label: "Pentagram" },
+];
+
+const RESULT_OPTIONS: { value: ResultFilter; label: string }[] = [
+  { value: "all", label: "All Results" },
+  { value: "wins", label: "Wins" },
+  { value: "losses", label: "Losses" },
+];
+
+type MatchLogFiltersProps = {
+  filters: MatchFilters;
+  onFiltersChange: (filters: MatchFilters) => void;
+  className?: string;
+};
+
+function MatchLogFilters({
+  filters,
+  onFiltersChange,
+  className,
+}: MatchLogFiltersProps) {
+  return (
+    <div className={cn("flex flex-wrap gap-2 mb-4", className)}>
+      {/* Format Filter */}
+      <div className="flex gap-1 bg-surface rounded-lg p-1">
+        {FORMAT_OPTIONS.map((option) => (
+          <Button
+            key={option.value}
+            variant={filters.format === option.value ? "primary" : "ghost"}
+            size="sm"
+            onClick={() =>
+              onFiltersChange({ ...filters, format: option.value })
+            }
+            className={cn(
+              "text-xs px-2.5 py-1 h-auto",
+              filters.format === option.value
+                ? ""
+                : "text-text-2 hover:text-text-1"
+            )}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* Result Filter */}
+      <div className="flex gap-1 bg-surface rounded-lg p-1">
+        {RESULT_OPTIONS.map((option) => (
+          <Button
+            key={option.value}
+            variant={filters.result === option.value ? "primary" : "ghost"}
+            size="sm"
+            onClick={() =>
+              onFiltersChange({ ...filters, result: option.value })
+            }
+            className={cn(
+              "text-xs px-2.5 py-1 h-auto",
+              filters.result === option.value
+                ? ""
+                : "text-text-2 hover:text-text-1"
+            )}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function applyFilters(
+  matches: MatchCardData[],
+  filters: MatchFilters,
+  currentUserId?: string
+): MatchCardData[] {
+  return matches.filter((match) => {
+    // Format filter
+    if (filters.format !== "all" && match.formatSlug !== filters.format) {
+      return false;
+    }
+
+    // Result filter (requires knowing the current user)
+    if (filters.result !== "all" && currentUserId) {
+      // Check if current user is the winner via userParticipant
+      const userParticipant = match.userParticipant;
+      if (userParticipant) {
+        const isWin = userParticipant.isWinner;
+        if (filters.result === "wins" && !isWin) return false;
+        if (filters.result === "losses" && isWin) return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+// ============================================
 // Component Types
 // ============================================
 
@@ -100,6 +216,10 @@ type MatchLogProps = {
   title?: string;
   /** Header action (optional) */
   headerAction?: React.ReactNode;
+  /** Whether to show filter controls */
+  showFilters?: boolean;
+  /** Current user ID for result filtering (wins/losses) */
+  currentUserId?: string;
 };
 
 // ============================================
@@ -184,18 +304,21 @@ function MatchLogEmpty({
  * - Loading skeleton state
  * - Empty state with customizable messaging
  * - Optional ELO display for personal history views
+ * - Optional format and result filters
  * 
  * @example
  * ```tsx
- * // Player match history
+ * // Player match history with filters
  * <MatchLog
  *   matches={playerMatches}
  *   showElo
+ *   showFilters
+ *   currentUserId={userId}
  *   groupByDate
  *   title="Match History"
  * />
  * 
- * // Collection match history
+ * // Collection match history (no filters)
  * <MatchLog
  *   matches={collectionMatches}
  *   emptyTitle="No matches in this collection"
@@ -215,7 +338,19 @@ export function MatchLog({
   className,
   title,
   headerAction,
+  showFilters = false,
+  currentUserId,
 }: MatchLogProps) {
+  const [filters, setFilters] = React.useState<MatchFilters>({
+    format: "all",
+    result: "all",
+  });
+
+  // Apply filters to matches
+  const filteredMatches = showFilters
+    ? applyFilters(matches, filters, currentUserId)
+    : matches;
+
   // Loading state
   if (isLoading) {
     return (
@@ -223,12 +358,15 @@ export function MatchLog({
         {title && (
           <MatchLogHeader title={title} matchCount={0} action={headerAction} />
         )}
+        {showFilters && (
+          <MatchLogFilters filters={filters} onFiltersChange={setFilters} />
+        )}
         <MatchLogSkeleton count={skeletonCount} />
       </div>
     );
   }
 
-  // Empty state
+  // Empty state (check original matches, not filtered)
   if (matches.length === 0) {
     return (
       <div className={className}>
@@ -244,9 +382,41 @@ export function MatchLog({
     );
   }
 
+  // No matches after filtering
+  const hasActiveFilters = filters.format !== "all" || filters.result !== "all";
+  if (filteredMatches.length === 0 && hasActiveFilters) {
+    return (
+      <div className={className}>
+        {title && (
+          <MatchLogHeader
+            title={title}
+            matchCount={matches.length}
+            action={headerAction}
+          />
+        )}
+        {showFilters && (
+          <MatchLogFilters filters={filters} onFiltersChange={setFilters} />
+        )}
+        <MatchLogEmpty
+          title="No matches found"
+          description="Try adjusting your filters"
+          action={
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setFilters({ format: "all", result: "all" })}
+            >
+              Clear filters
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
   // Group matches by date if enabled
   const groupedMatches = groupByDate
-    ? groupMatchesByDate(matches)
+    ? groupMatchesByDate(filteredMatches)
     : null;
 
   // Define the order of date groups
@@ -257,9 +427,13 @@ export function MatchLog({
       {title && (
         <MatchLogHeader
           title={title}
-          matchCount={matches.length}
+          matchCount={filteredMatches.length}
           action={headerAction}
         />
+      )}
+
+      {showFilters && (
+        <MatchLogFilters filters={filters} onFiltersChange={setFilters} />
       )}
 
       {groupByDate && groupedMatches ? (
@@ -288,7 +462,7 @@ export function MatchLog({
       ) : (
         // Flat list display
         <div className="flex flex-col gap-3">
-          {matches.map((match) => (
+          {filteredMatches.map((match) => (
             <MatchPreviewCard
               key={match.id}
               match={match}
@@ -300,3 +474,5 @@ export function MatchLog({
     </div>
   );
 }
+
+export { MatchLogFilters, type MatchFilters, type ResultFilter };

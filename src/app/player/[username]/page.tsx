@@ -5,6 +5,7 @@ import { Section } from "@/components/layout";
 import { DashboardStatCard } from "@/components/features/dashboard-stat-card";
 import { RatingHistoryChart } from "@/components/features/rating-history-chart";
 import { ColorRadarChart } from "@/components/features/color-radar-chart";
+import { PlayerComparisonCard } from "@/components/features/player-comparison-card";
 import { MatchPreviewCard } from "@/components/match/match-preview-card";
 import { TopCommandersList } from "@/components/features/top-commanders-list";
 import {
@@ -15,6 +16,7 @@ import {
   createMockDeckWithStats,
   createMockUserMatches,
   createMockRatingTimeline,
+  createMockPlayerComparison,
   resetMockIds,
 } from "@/lib/mock";
 import type { FormatStatEntry } from "@/lib/mock";
@@ -48,12 +50,30 @@ export default async function PlayerProfilePage({ params }: PageProps) {
     formatStats.reduce((sum, f) => sum + f.rating, 0) / formatStats.length
   );
 
+  // Generate comparison data (simulates viewing someone else's profile)
+  // In production, this would check if the profile is not the current user
+  const isOwnProfile = false; // Mock: always show comparison for demo
+  const comparisonData = !isOwnProfile
+    ? createMockPlayerComparison(
+        { id: profile.id, username: profile.username, avatarUrl: profile.avatarUrl },
+        stats,
+        overallRating
+      )
+    : null;
+
   return (
     <div className="space-y-8">
       {/* Profile Header */}
       <ProfileHeader
         profile={profile}
       />
+
+      {/* Head-to-Head Comparison (only when viewing someone else's profile) */}
+      {comparisonData && (
+        <Section title="COMPARED TO YOU">
+          <PlayerComparisonCard data={comparisonData} />
+        </Section>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
