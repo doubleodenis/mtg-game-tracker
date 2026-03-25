@@ -63,10 +63,10 @@
     - [x] Win rate as teammates
     - [x] Per-format record against them
     - [x] Best commander vs their decks
-- [ ] Deck Manager
-  - [ ] Deck list view
-  - [ ] Add / edit / retire deck form (including required bracket field)
-  - [ ] Per-deck stats (win rate, games played)
+- [x] Deck Manager
+  - [x] Deck list view (active/retired sections with card grid)
+  - [x] Add / edit / retire deck form (commander picker, bracket selector, locked when used in matches)
+  - [x] Per-deck stats (win rate, games played, W/L record)
 - [x] Collection Dashboard
   - [x] Collection-scoped rating leaderboard
   - [x] Activity feed and match history

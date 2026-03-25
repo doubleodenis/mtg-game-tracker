@@ -31,7 +31,7 @@ export function DeckCard({ deck, className }: DeckCardProps) {
   const hasPartner = !!deck.partnerName;
 
   return (
-    <Link href={`/decks/${deck.id}`}>
+    <Link href={`/decks/${deck.id}/edit`}>
       <Card
         className={cn(
           "overflow-hidden group hover:ring-2 hover:ring-accent/50 transition-all duration-200",

@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "api.scryfall.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "*.supabase.co",
         pathname: "/**",
       },
