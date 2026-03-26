@@ -96,14 +96,15 @@
 ## Phase 5 — Data Layer
 > You are here.
 
-- [ ] Supabase query helpers in `/lib/supabase` for every domain
-  - [ ] Matches
-  - [ ] Decks
-  - [ ] Collections
-  - [ ] Ratings
-  - [ ] Profiles / friends
+- [x] Supabase query helpers in `/lib/supabase` for every domain
+  - [x] Profiles / friends
+  - [x] Decks
+  - [x] Collections
+  - [x] Matches
+  - [x] Ratings
+  - [x] Formats
+- [x] Validate and cast `jsonb` fields (`match_data`, `participant_data`) at the data access boundary — components should never receive untyped json
 - [ ] Replace mock data in pages with real server-side queries, one page at a time
-- [ ] Validate and cast `jsonb` fields (`match_data`, `participant_data`) at the data access boundary — components should never receive untyped json
 
 ---
 
