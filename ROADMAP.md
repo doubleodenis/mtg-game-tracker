@@ -74,7 +74,7 @@
 ---
 
 ## Phase 4 — Supabase Setup
-> You are here.
+> Complete!
 
 - [x] Supabase project creation and Auth configuration
 - [x] Write migrations from finalized TypeScript types
@@ -84,13 +84,17 @@
 - [x] Database functions (get_or_create_rating, get_user_stats, get_leaderboard, get_deck_stats)
 - [x] Notification triggers (match confirmation, friend request, claim request, collection invite)
 - [x] Run migrations against hosted Supabase (paste in SQL Editor or use CLI)
-- [ ] Generate types with Supabase CLI → `types/database.types.ts`
-- [ ] Wire generated types to application types
-- [ ] Seed script using mock factories
+- [x] Generate types with Supabase CLI → `types/database.types.ts`
+- [x] Wire generated types to application types
+  - [x] `types/database-mappers.ts` — snake_case → camelCase conversion
+  - [x] `types/notification.ts` — Notification type definitions
+  - [x] Updated `types/index.ts` exports
+- [x] Seed script using mock factories → `scripts/seed.ts`
 
 ---
 
 ## Phase 5 — Data Layer
+> You are here.
 
 - [ ] Supabase query helpers in `/lib/supabase` for every domain
   - [ ] Matches

@@ -138,3 +138,72 @@ export {
   getKFactor,
   RATING_CONFIG,
 } from './rating'
+
+// Notification types
+export type {
+  ClaimAcceptedData,
+  ClaimAvailableData,
+  CollectionInviteData,
+  EloMilestoneData,
+  FriendAcceptedData,
+  FriendRequestData,
+  GenericNotificationData,
+  MatchConfirmedData,
+  MatchPendingConfirmationData,
+  Notification,
+  NotificationData,
+  NotificationEntityType,
+  NotificationType,
+  NotificationWithActor,
+  RankChangedData,
+} from './notification'
+export {
+  getNotificationTitle,
+  getNotificationUrl,
+  NOTIFICATION_TTL,
+} from './notification'
+
+// Database types (Supabase generated)
+export type { Database, Json, Tables, TablesInsert, TablesUpdate, Enums } from './database.types'
+
+// Database mappers (snake_case → camelCase)
+export {
+  // Row type aliases
+  type ProfileRow,
+  type FriendRow,
+  type DeckRow,
+  type FormatRow,
+  type MatchRow,
+  type MatchParticipantRow,
+  type CollectionRow,
+  type CollectionMemberRow,
+  type CollectionMatchRow,
+  type RatingRow,
+  type RatingHistoryRow,
+  type NotificationRow,
+  // Mapper functions
+  mapProfileRow,
+  mapProfileSummary,
+  mapDeckRow,
+  mapDeckSummary,
+  mapDeckWithStats,
+  mapFriendshipRow,
+  mapFriendRow,
+  mapFriendRequest,
+  mapFormatRow,
+  mapFormatSummary,
+  mapMatchRow,
+  mapMatchWithDetails,
+  mapMatchParticipantRow,
+  mapMatchParticipantWithDetails,
+  mapCollectionRow,
+  mapCollectionSummary,
+  mapCollectionMemberRow,
+  mapCollectionMemberWithProfile,
+  mapRatingRow,
+  mapRatingWithFormat,
+  mapRatingHistoryRow,
+  mapLeaderboardEntry,
+  mapNotificationRow,
+  type LeaderboardFunctionResult,
+} from './database-mappers'
