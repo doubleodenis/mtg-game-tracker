@@ -12,6 +12,8 @@ import { CommanderPicker } from "@/components/features/commander-picker";
 import { ColorIdentity } from "@/components/ui/mana-pip";
 import { BracketIndicator } from "@/components/ui/bracket-indicator";
 import { buildCommanderImageUrl } from "@/lib/scryfall/api";
+import { createClient } from "@/lib/supabase/client";
+import { createDeck, updateDeck, retireDeck, reactivateDeck } from "@/lib/supabase/decks";
 import type { Deck, Bracket, ColorIdentity as ColorIdentityType } from "@/types";
 import { BRACKET_OPTIONS } from "@/types";
 
@@ -127,9 +129,44 @@ export function DeckForm({
       if (onSubmit) {
         await onSubmit(formData);
       } else {
-        // Default behavior: navigate back to decks
-        console.log("Form data:", formData);
+        // Default behavior: create/update deck via Supabase
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+          throw new Error("You must be logged in to save a deck");
+        }
+
+        if (isEditMode && deck) {
+          // Update existing deck
+          const result = await updateDeck(supabase, deck.id, {
+            deckName: formData.deckName,
+            commanderName: formData.commanderName,
+            partnerName: formData.partnerName,
+            colorIdentity: formData.colorIdentity,
+            bracket: formData.bracket,
+          });
+
+          if (!result.success) {
+            throw new Error(result.error);
+          }
+        } else {
+          // Create new deck
+          const result = await createDeck(supabase, user.id, {
+            commanderName: formData.commanderName,
+            partnerName: formData.partnerName,
+            deckName: formData.deckName,
+            colorIdentity: formData.colorIdentity,
+            bracket: formData.bracket,
+          });
+
+          if (!result.success) {
+            throw new Error(result.error);
+          }
+        }
+
         router.push("/decks");
+        router.refresh();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save deck");
@@ -154,6 +191,16 @@ export function DeckForm({
       const newActiveState = !activeState;
       if (onToggleActive) {
         await onToggleActive(newActiveState);
+      } else if (deck) {
+        // Default behavior: retire/reactivate via Supabase
+        const supabase = createClient();
+        const result = newActiveState
+          ? await reactivateDeck(supabase, deck.id)
+          : await retireDeck(supabase, deck.id);
+
+        if (!result.success) {
+          throw new Error(result.error);
+        }
       }
       setActiveState(newActiveState);
     } catch (err) {

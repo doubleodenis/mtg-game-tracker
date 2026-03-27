@@ -1,9 +1,8 @@
+import { redirect, notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout";
 import { DeckForm } from "@/components/deck";
-import { createMockDeckWithStats, resetMockIds } from "@/lib/mock";
-
-// Force dynamic rendering
-export const dynamic = "force-dynamic";
+import { createClient } from "@/lib/supabase/server";
+import { getDeckWithStats } from "@/lib/supabase";
 
 interface EditDeckPageProps {
   params: Promise<{ id: string }>;
@@ -11,15 +10,31 @@ interface EditDeckPageProps {
 
 export default async function EditDeckPage({ params }: EditDeckPageProps) {
   const { id } = await params;
+  const supabase = await createClient();
 
-  // Reset mock IDs for fresh data
-  resetMockIds();
+  // Check auth
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // TODO: Fetch real deck by ID
-  const deck = createMockDeckWithStats({
-    id,
-    deckName: "Vampire Tribal",
-  });
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Fetch the deck
+  const result = await getDeckWithStats(supabase, id);
+
+  if (!result.success) {
+    console.error("Failed to fetch deck:", result.error);
+    notFound();
+  }
+
+  const deck = result.data;
+
+  // Verify ownership
+  if (deck.ownerId !== user.id) {
+    redirect("/decks");
+  }
 
   // Determine if deck has been used in matches (locks editing)
   const hasMatches = deck.stats.gamesPlayed > 0;

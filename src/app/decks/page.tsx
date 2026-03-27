@@ -1,34 +1,31 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, Button, Badge } from "@/components/ui";
 import { PageHeader } from "@/components/layout";
 import { DeckCard } from "@/components/deck";
-import { createMockDeckWithStats, resetMockIds } from "@/lib/mock";
-
-// Force dynamic rendering to refresh mock data
-export const dynamic = "force-dynamic";
+import { createClient } from "@/lib/supabase/server";
+import { getUserDecksWithStats } from "@/lib/supabase";
 
 export default async function DecksPage() {
-  // Reset mock IDs for fresh data
-  resetMockIds();
+  const supabase = await createClient();
 
-  // TODO: Fetch real decks for the current user
-  // Generate a mix of active and retired decks
-  const decks = [
-    createMockDeckWithStats({ isActive: true, deckName: "Superfriends" }),
-    createMockDeckWithStats({ isActive: true, deckName: "Vampire Tribal" }),
-    createMockDeckWithStats({ isActive: true, deckName: "Treasure Storm" }),
-    createMockDeckWithStats({ isActive: true, deckName: "Ninja Tempo" }),
-    createMockDeckWithStats({ isActive: true, deckName: "WUBRG Goodstuff" }),
-    createMockDeckWithStats({
-      isActive: false,
-      deckName: "Retired Artifacts",
-    }),
-    createMockDeckWithStats({
-      isActive: false,
-      deckName: "Old Combo Deck",
-    }),
-  ];
+  // Check auth
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Fetch user's decks with stats
+  const result = await getUserDecksWithStats(supabase, user.id);
+
+  if (!result.success) {
+    console.error("Failed to fetch decks:", result.error);
+  }
+
+  const decks = result.success ? result.data : [];
   const activeDecks = decks.filter((d) => d.isActive);
   const retiredDecks = decks.filter((d) => !d.isActive);
 
