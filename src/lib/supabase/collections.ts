@@ -531,3 +531,56 @@ export async function getPendingMatchApprovals(
     })),
   }
 }
+
+/**
+ * Get all collections a match belongs to (approved only)
+ * Returns collection IDs that the match is associated with
+ */
+export async function getMatchCollections(
+  client: SupabaseClient<Database>,
+  matchId: string
+): Promise<Result<string[]>> {
+  const { data, error } = await client
+    .from('collection_matches')
+    .select('collection_id')
+    .eq('match_id', matchId)
+    .eq('approval_status', 'approved')
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return {
+    success: true,
+    data: data.map((cm) => cm.collection_id),
+  }
+}
+
+/**
+ * Get collections a user is a member of (for a specific set of collection IDs)
+ * Used to filter which collections to update ratings for
+ */
+export async function getUserMemberCollections(
+  client: SupabaseClient<Database>,
+  userId: string,
+  collectionIds: string[]
+): Promise<Result<string[]>> {
+  if (collectionIds.length === 0) {
+    return { success: true, data: [] }
+  }
+
+  const { data, error } = await client
+    .from('collection_members')
+    .select('collection_id')
+    .eq('user_id', userId)
+    .in('collection_id', collectionIds)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return {
+    success: true,
+    data: data.map((cm) => cm.collection_id),
+  }
+}

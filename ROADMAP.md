@@ -153,7 +153,7 @@
 
 - [x] Wire rating calculation to match confirmation event
 - [x] Global rating update on confirmation
-- [ ] Collection-scoped rating update on confirmation (all collections the match belongs to)
+- [x] Collection-scoped rating update on confirmation (all collections the match belongs to)
 - [x] Rating history logging with all snapshot fields (`player_bracket`, `opponent_avg_rating`, `opponent_avg_bracket`, `k_factor`, `algorithm_version`)
 - [ ] Rating recalculation as a Supabase Edge Function
   - [ ] Reset all ratings to default

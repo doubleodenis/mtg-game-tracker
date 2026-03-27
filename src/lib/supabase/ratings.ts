@@ -478,3 +478,99 @@ export async function recordRatingHistory(
 
   return { success: true, data: mapRatingHistoryRow(data) }
 }
+
+// ============================================
+// Collection-Scoped Rating Updates
+// ============================================
+
+/**
+ * Update ratings for all collections a user is a member of for a match
+ * 
+ * This is called after confirming a match participation. For each collection
+ * the match belongs to where the user is a member, it:
+ * 1. Gets the user's collection-scoped rating
+ * 2. Calculates the rating change
+ * 3. Updates the collection-scoped rating
+ * 4. Records collection-scoped rating history
+ */
+export async function updateCollectionRatings(
+  client: SupabaseClient<Database>,
+  params: {
+    userId: string
+    matchId: string
+    formatId: string
+    playerBracket: Bracket
+    isWinner: boolean
+    opponents: Array<{ rating: number; bracket: Bracket }>
+    collectionIds: string[]  // Collections user is a member of that the match belongs to
+    algorithmVersion: number
+  }
+): Promise<Result<Array<{ collectionId: string; delta: number; newRating: number }>>> {
+  // Import calculateRating lazily to avoid circular dependencies
+  const { calculateRating } = await import('@/lib/rating')
+  
+  const results: Array<{ collectionId: string; delta: number; newRating: number }> = []
+
+  for (const collectionId of params.collectionIds) {
+    // Get collection-scoped rating for this user
+    const ratingResult = await getRating(client, params.userId, params.formatId, collectionId)
+    if (!ratingResult.success) {
+      console.error(`Failed to get collection rating for ${collectionId}:`, ratingResult.error)
+      continue
+    }
+
+    const collectionRating = ratingResult.data
+
+    // Calculate rating change for this collection
+    const ratingCalc = calculateRating({
+      playerId: params.userId,
+      playerRating: collectionRating.rating,
+      playerBracket: params.playerBracket,
+      playerMatchCount: collectionRating.matchesPlayed,
+      isWinner: params.isWinner,
+      opponents: params.opponents,
+      formatId: params.formatId,
+      collectionId,
+    })
+
+    // Update collection-scoped rating
+    const newRating = collectionRating.rating + ratingCalc.delta
+    const updateResult = await updateRating(
+      client,
+      params.userId,
+      params.formatId,
+      newRating,
+      true, // increment match count
+      collectionId
+    )
+
+    if (!updateResult.success) {
+      console.error(`Failed to update collection rating for ${collectionId}:`, updateResult.error)
+      continue
+    }
+
+    // Record collection-scoped rating history
+    await recordRatingHistory(client, {
+      userId: params.userId,
+      matchId: params.matchId,
+      formatId: params.formatId,
+      collectionId,
+      ratingBefore: collectionRating.rating,
+      ratingAfter: newRating,
+      delta: ratingCalc.delta,
+      playerBracket: params.playerBracket,
+      opponentAvgRating: ratingCalc.opponentAvgRating,
+      opponentAvgBracket: ratingCalc.opponentAvgBracket,
+      kFactor: ratingCalc.kFactor,
+      algorithmVersion: params.algorithmVersion,
+    })
+
+    results.push({
+      collectionId,
+      delta: ratingCalc.delta,
+      newRating,
+    })
+  }
+
+  return { success: true, data: results }
+}

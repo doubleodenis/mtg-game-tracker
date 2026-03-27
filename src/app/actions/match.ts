@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { confirmMatchParticipation, getMatchWithDetails, updateParticipantDeck } from '@/lib/supabase/matches'
-import { getRating, updateRating, recordRatingHistory } from '@/lib/supabase/ratings'
+import { getRating, updateRating, recordRatingHistory, updateCollectionRatings } from '@/lib/supabase/ratings'
+import { getMatchCollections, getUserMemberCollections } from '@/lib/supabase/collections'
 import { calculateRating } from '@/lib/rating'
 import type { Result, Bracket } from '@/types'
 
@@ -175,10 +176,42 @@ export async function confirmMatch(
     algorithmVersion: 1,
   })
 
+  // Update collection-scoped ratings
+  // Get all collections this match belongs to
+  const matchCollectionsResult = await getMatchCollections(supabase, participant.match_id)
+  if (matchCollectionsResult.success && matchCollectionsResult.data.length > 0) {
+    // Filter to collections where this user is a member
+    const userMemberCollectionsResult = await getUserMemberCollections(
+      supabase,
+      user.id,
+      matchCollectionsResult.data
+    )
+
+    if (userMemberCollectionsResult.success && userMemberCollectionsResult.data.length > 0) {
+      // Update rating for each collection the user is a member of
+      await updateCollectionRatings(supabase, {
+        userId: user.id,
+        matchId: participant.match_id,
+        formatId: format.id,
+        playerBracket,
+        isWinner: participant.is_winner,
+        opponents,
+        collectionIds: userMemberCollectionsResult.data,
+        algorithmVersion: 1,
+      })
+
+      // Revalidate collection pages
+      for (const collectionId of userMemberCollectionsResult.data) {
+        revalidatePath(`/collections/${collectionId}`)
+      }
+    }
+  }
+
   // Revalidate relevant pages
   revalidatePath('/dashboard')
   revalidatePath('/matches')
   revalidatePath(`/match/${participant.match_id}`)
+  revalidatePath('/collections')
 
   return {
     success: true,
