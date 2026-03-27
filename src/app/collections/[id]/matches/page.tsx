@@ -1,13 +1,16 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui";
 import { PageHeader } from "@/components/layout";
 import { MatchLog } from "@/components/match";
+import { createClient } from "@/lib/supabase/server";
 import {
-  createMockCollectionMatches,
-  resetMockIds,
-} from "@/lib/mock";
+  getCollectionById,
+  isCollectionMember,
+} from "@/lib/supabase";
+import { getRecentMatchCards } from "@/lib/services";
 
-// Force dynamic rendering to refresh mock data
+// Force dynamic rendering
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -16,15 +19,37 @@ interface PageProps {
 
 export default async function CollectionMatchesPage({ params }: PageProps) {
   const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Reset mock IDs for fresh data
-  resetMockIds();
+  // Fetch collection
+  const collectionResult = await getCollectionById(supabase, id);
+  
+  if (!collectionResult.success) {
+    notFound();
+  }
 
-  // TODO: Fetch real match data
-  const matches = createMockCollectionMatches(15);
+  const collection = collectionResult.data;
 
-  // Mock membership check
-  const isMember = true;
+  // Check membership
+  let isMember = false;
+  if (user) {
+    const memberResult = await isCollectionMember(supabase, id, user.id);
+    isMember = memberResult.success && memberResult.data === true;
+  }
+
+  // If collection is private and user is not a member, return 404
+  if (!collection.isPublic && !isMember) {
+    notFound();
+  }
+
+  // Fetch matches for this collection
+  const matchesResult = await getRecentMatchCards(supabase, {
+    limit: 100,
+    collectionId: id,
+  });
+  
+  const matches = matchesResult.success ? matchesResult.data : [];
 
   return (
     <div className="space-y-6">

@@ -1,12 +1,16 @@
+import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout";
 import { LeaderboardWithFilter } from "@/components/features/leaderboard-with-filter";
+import { createClient } from "@/lib/supabase/server";
 import {
-  createMockLeaderboard,
-  resetMockIds,
-} from "@/lib/mock";
+  getCollectionById,
+  isCollectionMember,
+  getLeaderboard,
+  getFormats,
+} from "@/lib/supabase";
 
-// Force dynamic rendering to refresh mock data
+// Force dynamic rendering
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -14,14 +18,43 @@ interface PageProps {
 }
 
 export default async function CollectionLeaderboardPage({ params }: PageProps) {
-  // Params are unused for now but will be needed for real data fetching
-  await params;
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Reset mock IDs for fresh data
-  resetMockIds();
+  // Fetch collection
+  const collectionResult = await getCollectionById(supabase, id);
+  
+  if (!collectionResult.success) {
+    notFound();
+  }
 
-  // TODO: Fetch real leaderboard data scoped to this collection
-  const leaderboard = createMockLeaderboard(20);
+  const collection = collectionResult.data;
+
+  // Check membership
+  let isMember = false;
+  if (user) {
+    const memberResult = await isCollectionMember(supabase, id, user.id);
+    isMember = memberResult.success && memberResult.data === true;
+  }
+
+  // If collection is private and user is not a member, return 404
+  if (!collection.isPublic && !isMember) {
+    notFound();
+  }
+
+  // Get FFA format (collections typically track FFA ratings)
+  const formatsResult = await getFormats(supabase);
+  const ffaFormat = formatsResult.success
+    ? formatsResult.data.find((f) => f.slug === "ffa")
+    : null;
+
+  // Fetch leaderboard for this collection
+  const leaderboardResult = ffaFormat
+    ? await getLeaderboard(supabase, ffaFormat.id, 50, id)
+    : { success: false as const, error: "No format found" };
+
+  const leaderboard = leaderboardResult.success ? leaderboardResult.data : [];
 
   return (
     <div className="space-y-6">

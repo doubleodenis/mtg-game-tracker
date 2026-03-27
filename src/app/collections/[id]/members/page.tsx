@@ -1,13 +1,15 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, Badge, Button } from "@/components/ui";
 import { PageHeader } from "@/components/layout";
+import { createClient } from "@/lib/supabase/server";
 import {
-  createMockCollectionWithMembers,
-  resetMockIds,
-} from "@/lib/mock";
+  getCollectionWithMembers,
+  isCollectionMember,
+} from "@/lib/supabase";
 
-// Force dynamic rendering to refresh mock data
+// Force dynamic rendering
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -16,19 +18,34 @@ interface PageProps {
 
 export default async function CollectionMembersPage({ params }: PageProps) {
   const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Reset mock IDs for fresh data
-  resetMockIds();
+  // Fetch collection with members
+  const collectionResult = await getCollectionWithMembers(supabase, id);
 
-  // TODO: Fetch real collection data
-  const collection = createMockCollectionWithMembers(8, { id });
+  if (!collectionResult.success) {
+    notFound();
+  }
 
-  // Mock: check if user is the owner
-  const currentUserId = "mock-user-123";
-  const userMembership = collection.members.find(
-    (m) => m.userId === currentUserId
+  const collection = collectionResult.data;
+
+  // Check membership
+  let isMember = false;
+  if (user) {
+    const memberResult = await isCollectionMember(supabase, id, user.id);
+    isMember = memberResult.success && memberResult.data === true;
+  }
+
+  // If collection is private and user is not a member, return 404
+  if (!collection.isPublic && !isMember) {
+    notFound();
+  }
+
+  // Check if current user is the owner
+  const isOwner = collection.members.some(
+    (m) => m.userId === user?.id && m.role === "owner"
   );
-  const isOwner = userMembership?.role === "owner";
 
   return (
     <div className="space-y-6">

@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button, Input, Badge } from "@/components/ui";
 import { PageHeader } from "@/components/layout";
+import { createClient } from "@/lib/supabase/server";
 import {
-  createMockCollectionWithMembers,
-  resetMockIds,
-} from "@/lib/mock";
+  getCollectionWithMembers,
+} from "@/lib/supabase";
 
-// Force dynamic rendering to refresh mock data
+// Force dynamic rendering
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -16,19 +16,26 @@ interface PageProps {
 
 export default async function CollectionSettingsPage({ params }: PageProps) {
   const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Reset mock IDs for fresh data
-  resetMockIds();
+  if (!user) {
+    redirect("/login");
+  }
 
-  // TODO: Fetch real collection data
-  const collection = createMockCollectionWithMembers(6, { id });
+  // Fetch collection with members
+  const collectionResult = await getCollectionWithMembers(supabase, id);
 
-  // Mock: check if user is the owner
-  const currentUserId = "mock-user-123";
-  const userMembership = collection.members.find(
-    (m) => m.userId === currentUserId
+  if (!collectionResult.success) {
+    notFound();
+  }
+
+  const collection = collectionResult.data;
+
+  // Check if current user is the owner
+  const isOwner = collection.members.some(
+    (m) => m.userId === user.id && m.role === "owner"
   );
-  const isOwner = userMembership?.role === "owner";
 
   // Only owners can access settings
   if (!isOwner) {
