@@ -74,6 +74,7 @@ export {
   updateMatchApprovalStatus,
   removeMatchFromCollection,
   getPendingMatchApprovals,
+  getPendingMatchApprovalsWithDetails,
 } from './collections'
 
 // Matches

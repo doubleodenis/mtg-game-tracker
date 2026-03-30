@@ -94,6 +94,7 @@ export type {
   InviteCollectionMemberPayload,
   MatchAddPermission,
   MatchApprovalResponsePayload,
+  PendingMatchApproval,
   UpdateCollectionPayload,
 } from './collection'
 

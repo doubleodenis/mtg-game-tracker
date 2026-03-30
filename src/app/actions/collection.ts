@@ -10,6 +10,7 @@ import {
   removeMatchFromCollection as removeMatchFromCollectionDb,
   isCollectionMember,
   getUserCollections,
+  updateMatchApprovalStatus,
 } from '@/lib/supabase/collections'
 import type { Result, MatchAddPermission, CollectionWithMembership, ApprovalStatus } from '@/types'
 
@@ -283,6 +284,84 @@ export async function removeMatchFromCollection(
 
   // Revalidate paths
   revalidatePath(`/match/${matchId}`)
+  revalidatePath(`/collections/${collectionId}`)
+
+  return { success: true, data: null }
+}
+
+/**
+ * Approve a pending match request in a collection.
+ * Only collection owner can approve.
+ */
+export async function approveCollectionMatch(
+  collectionMatchId: string,
+  collectionId: string
+): Promise<Result<null>> {
+  const supabase = await createClient()
+  
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Verify ownership
+  const collectionResult = await getCollectionById(supabase, collectionId)
+  if (!collectionResult.success) {
+    return { success: false, error: 'Collection not found' }
+  }
+
+  if (collectionResult.data.ownerId !== user.id) {
+    return { success: false, error: 'Only the owner can approve match requests' }
+  }
+
+  // Update approval status
+  const updateResult = await updateMatchApprovalStatus(supabase, collectionMatchId, 'approved')
+
+  if (!updateResult.success) {
+    return { success: false, error: updateResult.error }
+  }
+
+  // Revalidate paths
+  revalidatePath(`/collections/${collectionId}`)
+
+  return { success: true, data: null }
+}
+
+/**
+ * Reject a pending match request in a collection.
+ * Only collection owner can reject.
+ */
+export async function rejectCollectionMatch(
+  collectionMatchId: string,
+  collectionId: string
+): Promise<Result<null>> {
+  const supabase = await createClient()
+  
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Verify ownership
+  const collectionResult = await getCollectionById(supabase, collectionId)
+  if (!collectionResult.success) {
+    return { success: false, error: 'Collection not found' }
+  }
+
+  if (collectionResult.data.ownerId !== user.id) {
+    return { success: false, error: 'Only the owner can reject match requests' }
+  }
+
+  // Update approval status
+  const updateResult = await updateMatchApprovalStatus(supabase, collectionMatchId, 'rejected')
+
+  if (!updateResult.success) {
+    return { success: false, error: updateResult.error }
+  }
+
+  // Revalidate paths
   revalidatePath(`/collections/${collectionId}`)
 
   return { success: true, data: null }

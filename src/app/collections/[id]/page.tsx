@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge, Avatar, Button } from "@/components/ui";
 import { PageHeader, Section } from "@/components/layout";
 import { MatchLog } from "@/components/match";
+import { PendingMatchApprovals } from "@/components/collection";
 import { LeaderboardWithFilter } from "@/components/features/leaderboard-with-filter";
 import { TopCommandersList } from "@/components/features/top-commanders-list";
 import { DashboardStatCard } from "@/components/features/dashboard-stat-card";
@@ -13,9 +14,10 @@ import {
   isCollectionMember,
   getLeaderboard,
   getFormats,
+  getPendingMatchApprovalsWithDetails,
 } from "@/lib/supabase";
 import { getRecentMatchCards, getTopCommanders } from "@/lib/services";
-import type { CollectionMemberWithProfile } from "@/types";
+import type { CollectionMemberWithProfile, PendingMatchApproval } from "@/types";
 
 // Force dynamic rendering
 export const dynamic = "force-dynamic";
@@ -74,6 +76,17 @@ export default async function CollectionPage({ params }: PageProps) {
   const recentMatches = matchesResult.success ? matchesResult.data : [];
   const topCommanders = commandersResult.success ? commandersResult.data : [];
 
+  // Fetch pending approvals if owner and collection requires approval
+  let pendingApprovals: PendingMatchApproval[] = [];
+  const showPendingApprovals = isOwner && collection.matchAddPermission === "any_member_approval_required";
+  
+  if (showPendingApprovals) {
+    const pendingResult = await getPendingMatchApprovalsWithDetails(supabase, id);
+    if (pendingResult.success) {
+      pendingApprovals = pendingResult.data;
+    }
+  }
+
   // Get top commander by win rate
   const topCommander = topCommanders.length > 0 ? topCommanders[0] : null;
   
@@ -91,6 +104,14 @@ export default async function CollectionPage({ params }: PageProps) {
         isMember={isMember}
         isOwner={isOwner}
       />
+
+      {/* Pending Approvals (owner only) */}
+      {showPendingApprovals && pendingApprovals.length > 0 && (
+        <PendingMatchApprovals
+          collectionId={id}
+          initialPendingMatches={pendingApprovals}
+        />
+      )}
 
       {/* Quick Stats */}
       <Section title="COLLECTION STATS">

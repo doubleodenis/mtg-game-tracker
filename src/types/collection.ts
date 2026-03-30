@@ -137,6 +137,23 @@ export type MatchApprovalResponsePayload = {
 }
 
 /**
+ * Pending match approval with match and submitter details
+ */
+export type PendingMatchApproval = {
+  collectionMatchId: UUID
+  matchId: UUID
+  addedBy: ProfileSummary
+  addedAt: ISODateString
+  matchSummary: {
+    formatName: string
+    formatSlug: string
+    playedAt: ISODateString
+    participantCount: number
+    winnerNames: string[]
+  }
+}
+
+/**
  * User's activity within a collection
  */
 export type CollectionActivity = {

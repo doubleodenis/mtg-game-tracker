@@ -19,6 +19,7 @@ import type {
   CreateCollectionPayload,
   UpdateCollectionPayload,
   ApprovalStatus,
+  PendingMatchApproval,
 } from '@/types/collection'
 import {
   mapCollectionRow,
@@ -530,6 +531,98 @@ export async function getPendingMatchApprovals(
       addedAt: m.added_at ?? new Date().toISOString(),
     })),
   }
+}
+
+/**
+ * Get pending match approvals with full match and submitter details
+ */
+export async function getPendingMatchApprovalsWithDetails(
+  client: SupabaseClient<Database>,
+  collectionId: string
+): Promise<Result<PendingMatchApproval[]>> {
+  // Get pending collection_matches with joined data
+  const { data, error } = await client
+    .from('collection_matches')
+    .select(`
+      id,
+      match_id,
+      added_by,
+      added_at,
+      submitter:profiles!collection_matches_added_by_fkey(id, username, avatar_url),
+      match:matches!collection_matches_match_id_fkey(
+        id,
+        played_at,
+        format:formats!matches_format_id_fkey(name, slug)
+      )
+    `)
+    .eq('collection_id', collectionId)
+    .eq('approval_status', 'pending')
+    .order('added_at', { ascending: false })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  if (!data || data.length === 0) {
+    return { success: true, data: [] }
+  }
+
+  // Get all match IDs to fetch participants
+  const matchIds = data.map((d) => d.match_id)
+
+  // Get participants for all matches
+  const { data: participants, error: participantsError } = await client
+    .from('match_participants')
+    .select(`
+      match_id,
+      is_winner,
+      placeholder_name,
+      profile:profiles!match_participants_user_id_fkey(username)
+    `)
+    .in('match_id', matchIds)
+
+  if (participantsError) {
+    return { success: false, error: participantsError.message }
+  }
+
+  // Group participants by match ID
+  const participantsByMatch = new Map<string, Array<{ isWinner: boolean; name: string }>>()
+  for (const p of participants ?? []) {
+    const existing = participantsByMatch.get(p.match_id) ?? []
+    existing.push({
+      isWinner: p.is_winner,
+      name: p.profile?.username ?? p.placeholder_name ?? 'Unknown',
+    })
+    participantsByMatch.set(p.match_id, existing)
+  }
+
+  // Build result
+  const result: PendingMatchApproval[] = data.map((d) => {
+    const matchParticipants = participantsByMatch.get(d.match_id) ?? []
+    const winnerNames = matchParticipants
+      .filter((p) => p.isWinner)
+      .map((p) => p.name)
+
+    return {
+      collectionMatchId: d.id,
+      matchId: d.match_id,
+      addedBy: {
+        id: d.submitter?.id ?? d.added_by,
+        username: d.submitter?.username ?? 'Unknown',
+        avatarUrl: d.submitter?.avatar_url ?? null,
+      },
+      addedAt: d.added_at ?? new Date().toISOString(),
+      matchSummary: {
+        formatName: d.match?.format?.name ?? 'Unknown',
+        formatSlug: d.match?.format?.slug ?? 'ffa',
+        playedAt: d.match?.played_at ?? new Date().toISOString(),
+        participantCount: matchParticipants.length,
+        winnerNames,
+      },
+    }
+  })
+
+  return { success: true, data: result }
 }
 
 /**
