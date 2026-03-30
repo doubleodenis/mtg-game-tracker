@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Barlow, Chakra_Petch, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/components/providers";
+import { createClient } from "@/lib/supabase/server";
 
 const chakraPetch = Chakra_Petch({
   subsets: ['latin'],
@@ -29,15 +31,20 @@ export const metadata: Metadata = {
   keywords: ["MTG", "Magic The Gathering", "Commander", "EDH", "match tracker", "stats"],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className="dark">
       <body className={`${barlow.variable} ${chakraPetch.variable} ${jetbrainsMono.variable} font-body antialiased bg-bg-base text-text-1 min-h-screen`}>
-        {children}
+        <Providers userId={user?.id}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

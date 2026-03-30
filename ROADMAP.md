@@ -176,14 +176,14 @@
 
 ## Phase 10 — Polish & Edge Cases
 
-- [ ] Notifications UI
+- [x] Notifications UI
   - [x] Schema designed with fan-out on write, TTL cleanup, seen/read/dismissed states
   - [x] Notification types defined (match_pending_confirmation, match_confirmed, elo_milestone, friend_request, claim_available, collection_invite, etc.)
   - [x] Database triggers for auto-creating notifications
   - [x] Realtime subscription enabled
-  - [ ] Notification dropdown component
-  - [ ] Notification center page
-  - [ ] Toast notifications for real-time updates
+  - [x] Notification dropdown component
+  - [x] Notification center page
+  - [x] Toast notifications for real-time updates
 - [ ] Supabase Realtime for notification count and match confirmation status
 - [ ] Optimistic updates for key actions (match confirm, add to collection)
 - [ ] Error boundaries and user-friendly error messages throughout
