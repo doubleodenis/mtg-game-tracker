@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { NavbarSearch } from "./navbar-search";
 import { ProfileDropdown } from "./profile-dropdown";
+import { NotificationDropdown } from "./notification-dropdown";
+import { getNotifications, getUnseenNotificationCount } from "@/lib/supabase";
+import type { NotificationWithActor } from "@/types/notification";
 
 type NavbarProfile = {
   username: string;
@@ -16,6 +19,9 @@ export async function Navbar() {
   } = await supabase.auth.getUser();
 
   let profile: NavbarProfile | null = null;
+  let notifications: NotificationWithActor[] = [];
+  let unseenCount = 0;
+
   if (user) {
     const { data, error } = await supabase
       .from("profiles")
@@ -31,6 +37,19 @@ export async function Navbar() {
       };
     } else {
       profile = data;
+    }
+
+    // Fetch notifications
+    const [notificationsResult, unseenResult] = await Promise.all([
+      getNotifications(supabase, user.id, { limit: 10 }),
+      getUnseenNotificationCount(supabase, user.id),
+    ]);
+
+    if (notificationsResult.success) {
+      notifications = notificationsResult.data;
+    }
+    if (unseenResult.success) {
+      unseenCount = unseenResult.data;
     }
   }
 
@@ -55,6 +74,11 @@ export async function Navbar() {
               <Button asChild size="sm">
                 <Link href="/matches/new">New Match</Link>
               </Button>
+              <NotificationDropdown
+                initialNotifications={notifications ?? []}
+                initialUnseenCount={unseenCount}
+                userId={user.id}
+              />
               <ProfileDropdown
                 username={profile.username}
                 avatarUrl={profile.avatar_url}

@@ -115,3 +115,14 @@ export {
   getFormatBySlug,
   getDefaultFormat,
 } from './formats'
+
+// Notifications
+export {
+  getNotifications,
+  getUnreadNotificationCount,
+  getUnseenNotificationCount,
+  markNotificationsSeen,
+  markNotificationsRead,
+  dismissNotification,
+  dismissAllNotifications,
+} from './notifications'
