@@ -1,13 +1,14 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getMatchById } from '@/lib/services'
+import { getActiveDecks } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Avatar } from '@/components/ui/avatar'
 import { MatchPreviewCard } from '@/components/match/match-preview-card'
 import { AddToCollectionButton } from '@/components/match/add-to-collection-button'
 import { Navbar } from '@/components/features/navbar'
-import type { MatchCardData } from '@/types'
+import { ParticipantList } from './participant-list'
+import type { MatchCardData, DeckSummary } from '@/types'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -42,13 +43,28 @@ export default async function MatchDetailsPage({ params }: PageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  const result = await getMatchById(supabase, matchId, user?.id)
+  // Fetch match and user's decks in parallel
+  const [matchResult, userDecksResult] = await Promise.all([
+    getMatchById(supabase, matchId, user?.id),
+    user ? getActiveDecks(supabase, user.id) : Promise.resolve({ success: true as const, data: [] }),
+  ])
   
-  if (!result.success) {
+  if (!matchResult.success) {
     notFound()
   }
   
-  const match = result.data
+  const match = matchResult.data
+  const userDecks: DeckSummary[] = userDecksResult.success 
+    ? userDecksResult.data.map(d => ({
+        id: d.id,
+        commanderName: d.commanderName,
+        partnerName: d.partnerName,
+        deckName: d.deckName,
+        colorIdentity: d.colorIdentity,
+        bracket: d.bracket,
+      }))
+    : []
+    
   const avgBracket = getAverageBracket(match)
   
   const winners = match.participants.filter((p) => p.isWinner)
@@ -152,42 +168,24 @@ export default async function MatchDetailsPage({ params }: PageProps) {
             <CardTitle>Participants</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {match.participants.map((participant, index) => (
-                <div
-                  key={participant.id}
-                  className="flex items-center justify-between py-3 border-b border-card-border last:border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-text-3 w-6">#{index + 1}</span>
-                    <Avatar
-                      src={participant.avatarUrl}
-                      alt={participant.name}
-                      fallback={participant.name}
-                      size="lg"
-                    />
-                    <div>
-                      <p className="font-medium text-text-1">{participant.name}</p>
-                      {participant.deck && (
-                        <p className="text-sm text-text-3">
-                          {participant.deck.commanderName || 'Unknown Commander'}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {participant.isWinner && (
-                      <Badge variant="win">Winner</Badge>
-                    )}
-                    {participant.isConfirmed ? (
-                      <Badge variant="outline" className="text-text-3">Confirmed</Badge>
-                    ) : (
-                      <Badge variant="default">Pending</Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ParticipantList
+              participants={match.participants.map((p) => ({
+                id: p.id,
+                name: p.name,
+                avatarUrl: p.avatarUrl,
+                userId: p.userId,
+                isWinner: p.isWinner,
+                isConfirmed: p.isConfirmed,
+                deck: p.deck ? {
+                  id: p.deck.id,
+                  commanderName: p.deck.commanderName,
+                  deckName: p.deck.deckName,
+                  bracket: p.deck.bracket,
+                } : null,
+              }))}
+              currentUserId={user?.id ?? null}
+              userDecks={userDecks}
+            />
           </CardContent>
         </Card>
 

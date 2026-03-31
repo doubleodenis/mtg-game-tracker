@@ -7,7 +7,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
-import type { NotificationWithActor, NotificationType } from "@/types/notification";
+import { approveClaimRequest, rejectClaimRequest } from "@/app/actions/match";
+import type { NotificationWithActor, NotificationType, ClaimAvailableData } from "@/types/notification";
 import { getNotificationTitle, getNotificationUrl } from "@/types/notification";
 
 interface NotificationListProps {
@@ -27,6 +28,7 @@ export function NotificationList({
   const [notifications, setNotifications] = React.useState(initialNotifications);
   const [filter, setFilter] = React.useState<FilterType>("all");
   const [isMarkingAllRead, setIsMarkingAllRead] = React.useState(false);
+  const [claimActionLoading, setClaimActionLoading] = React.useState<string | null>(null);
   const router = useRouter();
 
   const unreadCount = notifications.filter((n) => !n.readAt).length;
@@ -103,6 +105,48 @@ export function NotificationList({
     router.refresh();
   };
 
+  // Handle claim approval
+  const handleClaimApprove = async (notification: NotificationWithActor) => {
+    const data = notification.data as ClaimAvailableData;
+    setClaimActionLoading(notification.id);
+
+    const result = await approveClaimRequest(data.participant_id);
+    
+    if (result.success) {
+      // Remove notification and dismiss
+      setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+      const supabase = createClient();
+      await supabase
+        .from("notifications")
+        .update({ dismissed_at: new Date().toISOString() })
+        .eq("id", notification.id);
+    }
+    
+    setClaimActionLoading(null);
+    router.refresh();
+  };
+
+  // Handle claim rejection
+  const handleClaimReject = async (notification: NotificationWithActor) => {
+    const data = notification.data as ClaimAvailableData;
+    setClaimActionLoading(notification.id);
+
+    const result = await rejectClaimRequest(data.participant_id);
+    
+    if (result.success) {
+      // Remove notification and dismiss
+      setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+      const supabase = createClient();
+      await supabase
+        .from("notifications")
+        .update({ dismissed_at: new Date().toISOString() })
+        .eq("id", notification.id);
+    }
+    
+    setClaimActionLoading(null);
+    router.refresh();
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -173,6 +217,9 @@ export function NotificationList({
                 notification={notification}
                 onClick={() => handleNotificationClick(notification)}
                 onDismiss={() => handleDismiss(notification.id)}
+                onClaimApprove={() => handleClaimApprove(notification)}
+                onClaimReject={() => handleClaimReject(notification)}
+                isClaimActionLoading={claimActionLoading === notification.id}
               />
             ))}
           </div>
@@ -217,19 +264,30 @@ interface NotificationRowProps {
   notification: NotificationWithActor;
   onClick: () => void;
   onDismiss: () => void;
+  onClaimApprove: () => void;
+  onClaimReject: () => void;
+  isClaimActionLoading: boolean;
 }
 
-function NotificationRow({ notification, onClick, onDismiss }: NotificationRowProps) {
+function NotificationRow({ 
+  notification, 
+  onClick, 
+  onDismiss,
+  onClaimApprove,
+  onClaimReject,
+  isClaimActionLoading,
+}: NotificationRowProps) {
   const isUnread = !notification.readAt;
+  const isClaimNotification = notification.type === "claim_available";
 
   return (
     <div
       className={cn(
         "relative flex items-start gap-4 p-4 transition-colors",
-        "hover:bg-surface/50 cursor-pointer",
+        !isClaimNotification && "hover:bg-surface/50 cursor-pointer",
         isUnread && "bg-surface/30"
       )}
-      onClick={onClick}
+      onClick={isClaimNotification ? undefined : onClick}
     >
       {/* Unread indicator */}
       {isUnread && (
@@ -262,6 +320,33 @@ function NotificationRow({ notification, onClick, onDismiss }: NotificationRowPr
         <p className="text-xs text-text-3 mt-1">
           {formatRelativeTime(notification.createdAt)}
         </p>
+        
+        {/* Claim action buttons */}
+        {isClaimNotification && (
+          <div className="flex items-center gap-2 mt-3">
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClaimApprove();
+              }}
+              disabled={isClaimActionLoading}
+            >
+              {isClaimActionLoading ? "..." : "Approve"}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClaimReject();
+              }}
+              disabled={isClaimActionLoading}
+            >
+              Reject
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Dismiss button */}

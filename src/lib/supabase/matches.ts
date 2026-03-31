@@ -17,6 +17,7 @@ import type {
   MatchSummary,
   CreateMatchPayload,
   ParticipantInput,
+  ClaimableMatchSlot,
 } from '@/types/match'
 import type { FormatSlug, MatchData, ParticipantData } from '@/types/format'
 import {
@@ -571,6 +572,106 @@ export async function updateParticipantDeck(
 
   return { success: true, data: null }
 }
+
+/**
+ * Search for matches with claimable placeholder slots
+ * Uses fuzzy matching (ILIKE) on placeholder_name
+ */
+export async function searchClaimableMatches(
+  client: SupabaseClient<Database>,
+  searchName: string
+): Promise<Result<ClaimableMatchSlot[]>> {
+  // Search for placeholder slots matching the name
+  const { data: participants, error } = await client
+    .from('match_participants')
+    .select(`
+      id,
+      match_id,
+      placeholder_name,
+      match:matches!inner (
+        id,
+        played_at,
+        created_by,
+        format:formats!inner (
+          slug,
+          name
+        ),
+        creator:profiles!matches_created_by_fkey (
+          username
+        )
+      )
+    `)
+    .is('user_id', null)
+    .eq('claim_status', 'none')
+    .ilike('placeholder_name', `%${searchName}%`)
+    .order('match_id')
+    .limit(20)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  if (!participants || participants.length === 0) {
+    return { success: true, data: [] }
+  }
+
+  // Get all match IDs to fetch other participants for context
+  const matchIds = [...new Set(participants.map((p) => p.match_id))]
+
+  const { data: allParticipants, error: partError } = await client
+    .from('match_participants')
+    .select(`
+      match_id,
+      placeholder_name,
+      user:profiles!match_participants_user_id_fkey (
+        username
+      )
+    `)
+    .in('match_id', matchIds)
+
+  if (partError) {
+    return { success: false, error: partError.message }
+  }
+
+  // Group other participants by match for context
+  const participantsByMatch = new Map<string, string[]>()
+  for (const p of allParticipants || []) {
+    const name = p.user?.username || p.placeholder_name || 'Unknown'
+    const existing = participantsByMatch.get(p.match_id) || []
+    existing.push(name)
+    participantsByMatch.set(p.match_id, existing)
+  }
+
+  // Map to ClaimableMatchSlot
+  const results: ClaimableMatchSlot[] = participants.map((p) => {
+    const match = p.match as {
+      id: string
+      played_at: string
+      created_by: string
+      format: { slug: string; name: string }
+      creator: { username: string }
+    }
+    const otherParticipants = (participantsByMatch.get(p.match_id) || [])
+      .filter((name) => name !== p.placeholder_name)
+
+    return {
+      participantId: p.id,
+      matchId: p.match_id,
+      placeholderName: p.placeholder_name || 'Unknown',
+      match: {
+        id: match.id,
+        playedAt: match.played_at,
+        formatSlug: match.format.slug as FormatSlug,
+        formatName: match.format.name,
+        creatorUsername: match.creator.username,
+        creatorDisplayName: null, // Profiles don't have display_name
+        otherParticipants,
+      },
+    }
+  })
+
+  return { success: true, data: results }
+}
 /**
  * Claim a placeholder slot
  */
@@ -648,6 +749,7 @@ export async function approveSlotClaim(
 
 /**
  * Reject a claim on a placeholder slot
+ * Resets status to 'none' so other users can still claim
  */
 export async function rejectSlotClaim(
   client: SupabaseClient<Database>,
@@ -657,7 +759,7 @@ export async function rejectSlotClaim(
     .from('match_participants')
     .update({
       claimed_by: null,
-      claim_status: 'rejected',
+      claim_status: 'none', // Reset to allow other users to claim
     })
     .eq('id', participantId)
     .select()

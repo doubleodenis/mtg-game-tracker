@@ -139,6 +139,7 @@ export function createMockParticipantDisplayInfo(
   const profile = createMockProfileSummary()
   return {
     id: generateMockId(),
+    userId: profile.id,
     name: profile.username,
     avatarUrl: profile.avatarUrl,
     isRegistered: true,

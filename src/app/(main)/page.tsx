@@ -334,6 +334,27 @@ async function PersonalDashboard({ userId }: { userId: string }) {
         )}
       </Section>
 
+      {/* Claim Placeholder Prompt */}
+      <Section>
+        <Card className="border-accent-ring/50 bg-accent-dim/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className="text-sm text-text-1 font-medium">
+                  Were you added to matches before signing up?
+                </p>
+                <p className="text-xs text-text-2 mt-0.5">
+                  Search for matches where you were listed as a placeholder participant
+                </p>
+              </div>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href="/matches/claim">Search & Claim</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </Section>
+
       {/* Recent Matches */}
       <Section 
         title="YOUR RECENT MATCHES" 

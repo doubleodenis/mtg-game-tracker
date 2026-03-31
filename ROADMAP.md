@@ -164,13 +164,14 @@
 ---
 
 ## Phase 9 — Placeholder & Claim Systems
+> Complete!
 
-- [ ] Placeholder participant creation in match flow
-- [ ] Placeholder deck assignment and fallback (bracket defaults to 2)
-- [ ] Claim request submission (search for matches by placeholder name)
-- [ ] Owner notification and approve / reject flow
-- [ ] Rating trigger on claim approval + confirmation
-- [ ] Placeholder deck retroactive update flow (any linked participant can update their slot)
+- [x] Placeholder participant creation in match flow
+- [x] Placeholder deck assignment and fallback (bracket defaults to 2)
+- [x] Claim request submission (search for matches by placeholder name)
+- [x] Owner notification and approve / reject flow
+- [x] Rating trigger on claim approval + confirmation
+- [x] Placeholder deck retroactive update flow (any linked participant can update their slot)
 
 ---
 

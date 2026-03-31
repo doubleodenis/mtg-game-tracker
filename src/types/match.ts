@@ -66,6 +66,7 @@ export type MatchParticipantWithDetails = MatchParticipant & {
  */
 export type ParticipantDisplayInfo = {
   id: UUID
+  userId: UUID | null // null for placeholder participants
   name: string
   avatarUrl: string | null
   isRegistered: boolean
@@ -223,4 +224,22 @@ export type PendingClaimRequest = {
   placeholderName: string
   match: MatchSummary
   createdAt: ISODateString
+}
+
+/**
+ * Claimable match slot (for claim search page)
+ */
+export type ClaimableMatchSlot = {
+  participantId: UUID
+  matchId: UUID
+  placeholderName: string
+  match: {
+    id: UUID
+    playedAt: ISODateString
+    formatSlug: FormatSlug
+    formatName: string
+    creatorUsername: string
+    creatorDisplayName: string | null
+    otherParticipants: string[] // Names of other players in the match
+  }
 }

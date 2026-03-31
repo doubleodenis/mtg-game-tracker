@@ -196,6 +196,7 @@ async function transformMatchToCardData(
 
   const participantInfos: ParticipantDisplayInfo[] = (participants ?? []).map((p) => ({
     id: p.id,
+    userId: p.user_id,
     name: p.profile ? mapProfileSummary(p.profile).username : p.placeholder_name ?? 'Unknown',
     avatarUrl: p.profile ? mapProfileSummary(p.profile).avatarUrl : null,
     isRegistered: !!p.user_id,

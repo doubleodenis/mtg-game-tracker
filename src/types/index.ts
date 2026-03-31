@@ -100,6 +100,7 @@ export type {
 
 // Match types
 export type {
+  ClaimableMatchSlot,
   ClaimParticipantPayload,
   ClaimResponsePayload,
   ClaimStatus,

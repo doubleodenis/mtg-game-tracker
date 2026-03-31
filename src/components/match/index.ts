@@ -5,6 +5,7 @@ export { MatchForm } from "./match-form";
 export { FormatSelector } from "./format-selector";
 export { PlayerSlot } from "./player-slot";
 export { PentagramLayout } from "./pentagram-layout";
+export { UpdateDeckModal } from "./update-deck-modal";
 export type {
   ParticipantSlot,
   SearchResult,
@@ -12,3 +13,4 @@ export type {
   PentagonPlayerCardProps,
   PentagramLayoutProps,
 } from "./match-form-types";
+
