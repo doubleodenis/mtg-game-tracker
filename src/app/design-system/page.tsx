@@ -41,7 +41,7 @@ import { Sidebar, TabNav, PageHeader, type NavItem } from "@/components/layout";
 import { createMockUserMatches, generateMockId } from "@/lib/mock";
 import type { FormatSlug } from "@/types/format";
 import type { ManaColor } from "@/app/_design-system";
-import type { Bracket } from "@/components/ui/bracket-indicator";
+import type { Bracket } from "@/types";
 
 const sampleNavItems: NavItem[] = [
   { label: "Overview", href: "#" },
