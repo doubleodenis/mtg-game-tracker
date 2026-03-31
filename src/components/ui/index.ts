@@ -51,6 +51,12 @@ export {
   type PageErrorProps,
 } from "./error-boundary";
 
+export {
+  FormError,
+  FormErrorBanner,
+  FormSuccessBanner,
+} from "./form-feedback";
+
 // Legacy (to be reviewed)
 export { StatCard } from "./stat-card";
 export { PlayerSearchInput } from "./player-search-input";

@@ -187,7 +187,7 @@
   - [x] Toast notifications for real-time updates
 - [ ] Supabase Realtime for notification count and match confirmation status
 - [ ] Optimistic updates for key actions (match confirm, add to collection)
-- [ ] Error boundaries and user-friendly error messages throughout
+- [x] Error boundaries and user-friendly error messages throughout
 - [x] Full empty state and loading state audit
 - [x] Mobile layout pass — verify every view on small screens
 

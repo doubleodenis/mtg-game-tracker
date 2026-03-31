@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormErrorBanner } from "@/components/ui/form-feedback";
 import { createClient } from "@/lib/supabase/client";
+import { getUserFriendlyError } from "@/lib/errors";
 import { createCollection } from "@/lib/supabase/collections";
 import type { MatchAddPermission, CreateCollectionPayload } from "@/types";
 
@@ -114,9 +116,7 @@ export function CollectionForm({
         router.refresh();
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create collection"
-      );
+      setError(getUserFriendlyError(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -277,11 +277,7 @@ export function CollectionForm({
       </Card>
 
       {/* Error */}
-      {error && (
-        <div className="p-4 rounded-lg bg-loss-subtle border border-loss-ring">
-          <p className="text-loss text-sm">{error}</p>
-        </div>
-      )}
+      <FormErrorBanner message={error} onDismiss={() => setError(null)} />
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-3">

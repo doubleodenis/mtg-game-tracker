@@ -11,7 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { CommanderPicker } from "@/components/features/commander-picker";
 import { ColorIdentity } from "@/components/ui/mana-pip";
 import { BracketIndicator } from "@/components/ui/bracket-indicator";
+import { FormErrorBanner } from "@/components/ui/form-feedback";
 import { buildCommanderImageUrl } from "@/lib/scryfall/api";
+import { getUserFriendlyError } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/client";
 import { createDeck, updateDeck, retireDeck, reactivateDeck } from "@/lib/supabase/decks";
 import type { Deck, Bracket, ColorIdentity as ColorIdentityType } from "@/types";
@@ -169,7 +171,7 @@ export function DeckForm({
         router.refresh();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save deck");
+      setError(getUserFriendlyError(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -225,11 +227,7 @@ export function DeckForm({
 
   return (
     <form onSubmit={handleSubmit} className={cn("space-y-6", className)}>
-      {error && (
-        <div className="p-4 rounded-lg bg-loss-subtle border border-loss-ring text-loss">
-          {error}
-        </div>
-      )}
+<FormErrorBanner message={error} onDismiss={() => setError(null)} />
 
       {/* Locked state notice */}
       {isLocked && (
