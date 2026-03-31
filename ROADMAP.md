@@ -188,8 +188,8 @@
 - [ ] Supabase Realtime for notification count and match confirmation status
 - [ ] Optimistic updates for key actions (match confirm, add to collection)
 - [ ] Error boundaries and user-friendly error messages throughout
-- [ ] Full empty state and loading state audit
-- [ ] Mobile layout pass — verify every view on small screens
+- [x] Full empty state and loading state audit
+- [x] Mobile layout pass — verify every view on small screens
 
 ---
 
