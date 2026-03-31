@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cn, formatRelativeTime, formatDuration } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { buildCommanderImageUrl } from "@/lib/scryfall/api";
-import type { Match, MatchParticipant, GuestParticipant, Profile } from "@/types/database.types";
+import type { Match } from "@/types";
 
 interface Participant {
   id: string;
