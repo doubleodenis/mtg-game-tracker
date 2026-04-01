@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, Badge, Button } from "@/components/ui";
+import { Avatar, Badge } from "@/components/ui";
 import { PageHeader } from "@/components/layout";
-import { InviteMemberButton } from "@/components/collection";
+import { InviteMemberButton, RemoveMemberButton } from "@/components/collection";
 import { createClient } from "@/lib/supabase/server";
 import {
   getCollectionWithMembers,
@@ -101,9 +101,11 @@ export default async function CollectionMembersPage({ params }: PageProps) {
                 </Badge>
 
                 {isOwner && member.role !== "owner" && (
-                  <Button variant="ghost" size="sm" className="text-loss">
-                    Remove
-                  </Button>
+                  <RemoveMemberButton
+                    collectionId={id}
+                    userId={member.userId}
+                    username={member.profile.username}
+                  />
                 )}
               </div>
             </div>

@@ -8,6 +8,7 @@ import {
   getCollectionById,
   addMatchToCollection as addMatchToCollectionDb,
   removeMatchFromCollection as removeMatchFromCollectionDb,
+  removeCollectionMember as removeCollectionMemberDb,
   isCollectionMember,
   getUserCollections,
   updateMatchApprovalStatus,
@@ -57,6 +58,51 @@ export async function inviteCollectionMember(
 
   if (error) {
     return { success: false, error: error.message }
+  }
+
+  // Revalidate collection pages
+  revalidatePath(`/collections/${collectionId}`)
+  revalidatePath(`/collections/${collectionId}/members`)
+
+  return { success: true, data: null }
+}
+
+/**
+ * Remove a member from a collection (owner only).
+ * Cannot remove the owner themselves.
+ */
+export async function removeCollectionMember(
+  collectionId: string,
+  userId: string
+): Promise<Result<null>> {
+  const supabase = await createClient()
+  
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Verify ownership
+  const collectionResult = await getCollectionById(supabase, collectionId)
+  if (!collectionResult.success) {
+    return { success: false, error: 'Collection not found' }
+  }
+
+  if (collectionResult.data.ownerId !== user.id) {
+    return { success: false, error: 'Only the owner can remove members' }
+  }
+
+  // Cannot remove the owner
+  if (userId === collectionResult.data.ownerId) {
+    return { success: false, error: 'Cannot remove the collection owner' }
+  }
+
+  // Remove the member
+  const result = await removeCollectionMemberDb(supabase, collectionId, userId)
+
+  if (!result.success) {
+    return { success: false, error: result.error }
   }
 
   // Revalidate collection pages
