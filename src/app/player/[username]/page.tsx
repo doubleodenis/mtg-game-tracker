@@ -19,9 +19,9 @@ import {
 } from "@/lib/supabase";
 import {
   getRecentMatchCards,
+  getHeadToHeadComparison,
 } from "@/lib/services";
 import {
-  createMockPlayerComparison,
   createMockRatingTimeline,
 } from "@/lib/mock";
 import type { FormatStats } from "@/types/profile";
@@ -109,15 +109,17 @@ export default async function PlayerProfilePage({ params }: PageProps) {
     ? Math.round(ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length)
     : 1000;
 
-  // Generate comparison data only when viewing another user's profile
-  // TODO: Replace with real head-to-head comparison when available
-  const comparisonData = !isOwnProfile && currentUser
-    ? createMockPlayerComparison(
-        { id: profile.id, username: profile.username, avatarUrl: profile.avatarUrl },
-        stats,
-        overallRating
-      )
-    : null;
+  // Get real head-to-head comparison only when viewing another user's profile
+  let comparisonData = null;
+  if (!isOwnProfile && currentUser) {
+    const comparisonResult = await getHeadToHeadComparison(supabase, currentUser.id, profile.id);
+    if (comparisonResult.success) {
+      // Only show comparison if there are shared matches
+      const data = comparisonResult.data;
+      const hasSharedMatches = data.asEnemies.matchesPlayed > 0 || data.asTeammates.matchesPlayed > 0;
+      comparisonData = hasSharedMatches ? data : null;
+    }
+  }
 
   // Calculate color stats from user's decks (weighted by games played)
   const colorStats: ColorStats = { W: 0, U: 0, B: 0, R: 0, G: 0 };
@@ -286,6 +288,17 @@ function ColorBreakdown({
     { key: "R", name: "Red", games: colorStats.R },
     { key: "G", name: "Green", games: colorStats.G },
   ].sort((a, b) => b.games - a.games);
+
+  // Handle empty state
+  if (total === 0) {
+    return (
+      <div className="mt-4 pt-4 border-t border-card-border">
+        <p className="text-text-3 text-sm text-center py-2">
+          No color data yet
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 pt-4 border-t border-card-border space-y-2">
