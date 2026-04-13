@@ -132,7 +132,7 @@ export async function Navbar() {
             <>
               <NavLink href="/login">Log in</NavLink>
               <Button asChild size="sm">
-                <Link href="/login">Sign up</Link>
+                <Link href="/login?mode=signup">Sign up</Link>
               </Button>
             </>
           )}

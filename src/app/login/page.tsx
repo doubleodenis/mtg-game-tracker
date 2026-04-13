@@ -16,12 +16,14 @@ function LoginContent() {
   const router = useRouter();
   const redirectTo = searchParams.get("redirectTo") || "/";
   const urlError = searchParams.get("error");
+  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "signin";
   
-  const [mode, setMode] = useState<AuthMode>("signin");
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [isLoading, setIsLoading] = useState<LoadingState>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<string | null>(urlError ? "Authentication failed. Please try again." : null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -60,6 +62,10 @@ function LoginContent() {
     }
 
     if (mode === "signup") {
+      if (!displayName.trim()) {
+        setError("Please enter a display name.");
+        return;
+      }
       if (password.length < 6) {
         setError("Password must be at least 6 characters.");
         return;
@@ -87,6 +93,9 @@ function LoginContent() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+          data: {
+            display_name: displayName.trim(),
+          },
         },
       });
 
@@ -163,6 +172,17 @@ function LoginContent() {
           )}
 
           <form onSubmit={handleEmailAuth} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {mode === "signup" && (
+              <Input
+                type="text"
+                placeholder="Display name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                disabled={isLoading !== null}
+                autoComplete="name"
+                required
+              />
+            )}
             <Input
               type="email"
               placeholder="Email"
