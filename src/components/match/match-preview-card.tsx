@@ -182,9 +182,21 @@ function ParticipantSlot({ participant, userParticipantId, relationship, showCla
 }
 
 /**
- * VS divider for team formats
+ * VS divider for team formats - horizontal on desktop, vertical on mobile
  */
-function VsDivider() {
+function VsDivider({ vertical = false }: { vertical?: boolean }) {
+  if (vertical) {
+    // Mobile: horizontal divider line
+    return (
+      <div className="flex items-center justify-center py-1 shrink-0">
+        <div className="flex-1 h-px bg-linear-to-r from-transparent via-text-3/30 to-transparent" />
+        <span className="text-xs font-bold text-text-3 px-2">VS</span>
+        <div className="flex-1 h-px bg-linear-to-r from-transparent via-text-3/30 to-transparent" />
+      </div>
+    );
+  }
+  
+  // Desktop: vertical divider line
   return (
     <div className="flex flex-col items-center justify-center px-1 shrink-0">
       <div className="h-full w-px bg-linear-to-b from-transparent via-text-3/30 to-transparent" />
@@ -232,15 +244,26 @@ export function MatchPreviewCard({
     ? sortPentagramBySeat(match.participants)
     : [];
 
+  // For mobile vertical split of pentagram (3 top, 2 bottom)
+  const pentagramTop = pentagramParticipants.slice(0, 3);
+  const pentagramBottom = pentagramParticipants.slice(3);
+
+  // Formats that need vertical stacking on mobile
+  const needsVerticalMobileLayout = hasTeams || isPentagram;
+
   return (
     <Link href={`/match/${match.id}`} className={cn("block", className)}>
-      <Card className="hover:border-card-border-hi transition-colors h-44">
+      <Card className={cn(
+        "hover:border-card-border-hi transition-colors",
+        needsVerticalMobileLayout ? "h-64 sm:h-44" : "h-44"
+      )}>
         <CardContent className="p-3 h-full">
           <div className="flex items-stretch gap-4 h-full">
             {/* Participants - fill the left side */}
             <div className="flex-1 flex items-stretch justify-center gap-2">
               {hasTeams ? (
-                <>
+                // Team format - vertical on mobile, horizontal on desktop
+                <div className="flex-1 flex flex-col sm:flex-row items-stretch gap-2">
                   {/* Team A */}
                   <div className="flex-1 flex items-stretch justify-center gap-2">
                     {teamA.map((participant) => (
@@ -253,8 +276,13 @@ export function MatchPreviewCard({
                     ))}
                   </div>
                   
-                  {/* VS Divider */}
-                  <VsDivider />
+                  {/* VS Divider - horizontal on mobile, vertical on desktop */}
+                  <div className="sm:hidden">
+                    <VsDivider vertical />
+                  </div>
+                  <div className="hidden sm:flex">
+                    <VsDivider />
+                  </div>
                   
                   {/* Team B */}
                   <div className="flex-1 flex items-stretch justify-center gap-2">
@@ -267,18 +295,48 @@ export function MatchPreviewCard({
                       />
                     ))}
                   </div>
-                </>
+                </div>
               ) : isPentagram ? (
-                // Pentagram - sorted by seat position with ally/enemy indicators
-                pentagramParticipants.map((participant) => (
-                  <ParticipantSlot
-                    key={participant.id}
-                    participant={participant}
-                    userParticipantId={userParticipant?.id}
-                    relationship={getPentagramRelationship(participant, userParticipant)}
-                    showClaimBadge={effectiveShowClaimBadges}
-                  />
-                ))
+                // Pentagram - vertical split on mobile (3 top, 2 bottom), horizontal on desktop
+                <>
+                  {/* Mobile: 2 rows (3 + 2) */}
+                  <div className="flex-1 flex flex-col gap-2 sm:hidden">
+                    <div className="flex-1 flex items-stretch justify-center gap-2">
+                      {pentagramTop.map((participant) => (
+                        <ParticipantSlot
+                          key={participant.id}
+                          participant={participant}
+                          userParticipantId={userParticipant?.id}
+                          relationship={getPentagramRelationship(participant, userParticipant)}
+                          showClaimBadge={effectiveShowClaimBadges}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex-1 flex items-stretch justify-center gap-2">
+                      {pentagramBottom.map((participant) => (
+                        <ParticipantSlot
+                          key={participant.id}
+                          participant={participant}
+                          userParticipantId={userParticipant?.id}
+                          relationship={getPentagramRelationship(participant, userParticipant)}
+                          showClaimBadge={effectiveShowClaimBadges}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {/* Desktop: single row */}
+                  <div className="hidden sm:flex sm:flex-1 sm:items-stretch sm:justify-center sm:gap-2">
+                    {pentagramParticipants.map((participant) => (
+                      <ParticipantSlot
+                        key={participant.id}
+                        participant={participant}
+                        userParticipantId={userParticipant?.id}
+                        relationship={getPentagramRelationship(participant, userParticipant)}
+                        showClaimBadge={effectiveShowClaimBadges}
+                      />
+                    ))}
+                  </div>
+                </>
               ) : (
                 // FFA - all participants in a row
                 match.participants.map((participant) => (

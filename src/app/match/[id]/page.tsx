@@ -116,11 +116,11 @@ export default async function MatchDetailsPage({ params }: PageProps) {
       </div>
 
       {/* Main content */}
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-4">
         {/* Match Preview Card - larger display */}
-        <div className="pointer-events-none">
-          <MatchPreviewCard match={match} showElo className="h-56" />
-        </div>
+        {/* <div className="pointer-events-none"> */}
+          <MatchPreviewCard match={match} showElo />
+        {/* </div> */}
 
         {/* Match Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

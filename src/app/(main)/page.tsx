@@ -10,6 +10,7 @@ import { TopCommandersList } from "@/components/features/top-commanders-list";
 import { PendingConfirmationCard } from "@/components/features/pending-confirmation-card";
 import { CollectionActivityCard } from "@/components/features/collection-activity-card";
 import { RatingHistoryChart } from "@/components/features/rating-history-chart";
+import { NavbarSearch } from "@/components/features/navbar-search";
 // Raw database queries
 import {
   getLeaderboard,
@@ -128,6 +129,11 @@ async function GlobalDashboard() {
           </Button>
         }
       />
+
+      {/* Mobile search bar */}
+      <div className="md:hidden">
+        <NavbarSearch />
+      </div>
 
       {/* Platform Stats */}
       <Section title="PLATFORM STATS">
@@ -291,6 +297,11 @@ async function PersonalDashboard({ userId }: { userId: string }) {
           </Button>
         }
       />
+
+      {/* Mobile search bar */}
+      <div className="md:hidden">
+        <NavbarSearch />
+      </div>
 
       {/* Quick Stats */}
       <Section title="YOUR STATS">

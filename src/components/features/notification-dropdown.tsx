@@ -209,10 +209,17 @@ function NotificationItem({ notification, onClick, onDismiss }: NotificationItem
   const isUnread = !notification.readAt;
 
   return (
-    <button
+    <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      tabIndex={0}
       className={cn(
-        "w-full px-4 py-3 text-left transition-colors",
+        "w-full px-4 py-3 text-left transition-colors cursor-pointer",
         "hover:bg-surface focus:outline-none focus-visible:bg-surface",
         isUnread && "bg-surface/50"
       )}
@@ -259,13 +266,12 @@ function NotificationItem({ notification, onClick, onDismiss }: NotificationItem
             </button>
           </div>
 
-          {/* Unread indicator */}
           {isUnread && (
             <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent" />
           )}
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
