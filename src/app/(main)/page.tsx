@@ -125,7 +125,7 @@ async function GlobalDashboard() {
         description="Track your Commander matches, compete with friends, and climb the leaderboards"
         actions={
           <Button asChild>
-            <Link href="/login">Get Started</Link>
+            <Link href="/login?mode=signup">Get Started</Link>
           </Button>
         }
       />
@@ -206,7 +206,7 @@ async function GlobalDashboard() {
             Sign up to record matches, track your rating, and compete with friends.
           </p>
           <Button asChild size="lg">
-            <Link href="/login">Create Account</Link>
+            <Link href="/login?mode=signup">Create Account</Link>
           </Button>
         </CardContent>
       </Card>

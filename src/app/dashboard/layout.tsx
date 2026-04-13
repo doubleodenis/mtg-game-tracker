@@ -33,7 +33,7 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-bg-base">
       <Navbar />
       <TabNav items={navItems} />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl md:mx-auto px-4 py-8">
         {children}
       </main>
     </div>

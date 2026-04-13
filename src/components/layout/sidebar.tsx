@@ -92,7 +92,7 @@ export function TabNav({ items, className }: TabNavProps) {
 
   return (
     <nav className={cn("sticky top-0 z-10 border-b border-card-border bg-bg-surface", className)}>
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl md:mx-auto px-4">
         <div className="flex gap-6 overflow-x-auto scrollbar-hide">
           {items.map((item) => {
             const isActive = item.href === activeHref;

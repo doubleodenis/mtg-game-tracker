@@ -36,7 +36,7 @@ export default async function ClaimByTokenPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className="max-w-2xl md:mx-auto px-4 py-12">
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
@@ -80,7 +80,7 @@ export default async function ClaimByTokenPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className="max-w-2xl md:mx-auto px-4 py-12">
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
@@ -136,7 +136,7 @@ export default async function ClaimByTokenPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl md:mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
           <h1 className="font-display text-2xl font-bold text-text-1">

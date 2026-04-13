@@ -13,9 +13,9 @@ import {
   createMatch,
 } from '@/lib/supabase/matches'
 import { getRating, applyRatingChange, updateCollectionRatings } from '@/lib/supabase/ratings'
-import { getMatchCollections, getUserMemberCollections } from '@/lib/supabase/collections'
+import { getMatchCollections, getUserMemberCollections, addMatchToCollection, getCollectionById, isCollectionMember } from '@/lib/supabase/collections'
 import { calculateRating } from '@/lib/rating'
-import type { Result, Bracket, ClaimableMatchSlot, ClaimStatus, CreateMatchPayload, MatchData, ParticipantInput } from '@/types'
+import type { Result, Bracket, ClaimableMatchSlot, ClaimStatus, CreateMatchPayload, MatchData, ParticipantInput, ApprovalStatus } from '@/types'
 
 /**
  * Log a new match with participants.
@@ -35,6 +35,7 @@ export async function logMatch(payload: {
   matchData: MatchData
   participants: ParticipantInput[]
   winnerIndices: number[]
+  collectionIds?: string[]
 }): Promise<Result<{ matchId: string; delta: number; newRating: number }>> {
   const supabase = await createClient()
   
@@ -179,6 +180,42 @@ export async function logMatch(payload: {
       for (const collectionId of userMemberCollectionsResult.data) {
         revalidatePath(`/collections/${collectionId}`)
       }
+    }
+  }
+
+  // Add match to selected collections
+  if (payload.collectionIds && payload.collectionIds.length > 0) {
+    for (const collectionId of payload.collectionIds) {
+      // Verify user is a member of the collection
+      const memberCheck = await isCollectionMember(supabase, collectionId, user.id)
+      if (!memberCheck.success || !memberCheck.data) {
+        continue // Skip collections the user is not a member of
+      }
+
+      // Get collection details for permission check
+      const collectionResult = await getCollectionById(supabase, collectionId)
+      if (!collectionResult.success) {
+        continue
+      }
+
+      const collection = collectionResult.data
+      const isOwner = collection.ownerId === user.id
+      const permission = collection.matchAddPermission
+
+      // Check permissions
+      if (permission === 'owner_only' && !isOwner) {
+        continue // User doesn't have permission
+      }
+
+      // Determine approval status
+      let approvalStatus: ApprovalStatus = 'approved'
+      if (!isOwner && permission === 'any_member_approval_required') {
+        approvalStatus = 'pending'
+      }
+
+      // Add match to collection
+      await addMatchToCollection(supabase, collectionId, match.id, user.id, approvalStatus)
+      revalidatePath(`/collections/${collectionId}`)
     }
   }
 

@@ -8,7 +8,7 @@ export default function MatchNotFound() {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="max-w-4xl mx-auto px-4 py-16">
+      <div className="max-w-4xl md:mx-auto px-4 py-16">
         <Card className="max-w-md mx-auto text-center">
           <CardHeader>
             <CardTitle className="text-2xl">Match Not Found</CardTitle>

@@ -26,7 +26,7 @@ export default async function CollectionsPage() {
   return (
     <>
       <TabNav items={AUTHENTICATED_NAV} />
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-6xl md:mx-auto px-4 py-8 space-y-6">
         <PageHeader
         title="My Collections"
         description="Groups of matches you're tracking"

@@ -209,6 +209,46 @@ export async function deleteCollection(
 }
 
 /**
+ * Get collections available for adding to a new match (before match is created).
+ * Returns collections where the user can add matches.
+ */
+export async function getCollectionsForNewMatch(): Promise<
+  Result<Array<CollectionWithMembership & { canAddDirectly: boolean }>>
+> {
+  const supabase = await createClient()
+
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Get user's collections
+  const collectionsResult = await getUserCollections(supabase, user.id)
+  if (!collectionsResult.success) {
+    return { success: false, error: collectionsResult.error }
+  }
+
+  // Determine if user can add directly for each collection
+  const result = collectionsResult.data.map((collection) => {
+    const isOwner = collection.userRole === 'owner'
+    const permission = collection.matchAddPermission
+
+    // User can add directly if:
+    // - They're the owner, OR
+    // - Permission is 'any_member'
+    const canAddDirectly = isOwner || permission === 'any_member'
+
+    return {
+      ...collection,
+      canAddDirectly,
+    }
+  })
+
+  return { success: true, data: result }
+}
+
+/**
  * Get collections available for adding a match.
  * Returns collections where the user is a member/owner and can add matches.
  */

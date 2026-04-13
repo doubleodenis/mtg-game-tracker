@@ -30,6 +30,8 @@ export async function GET(request: Request) {
           .eq("id", user.id)
           .single();
 
+        let needsDisplayNameSetup = false;
+
         if (!existingProfile) {
           // Create new profile
           const username =
@@ -38,11 +40,15 @@ export async function GET(request: Request) {
             user.email?.split("@")[0] ||
             `user_${user.id.slice(0, 8)}`;
 
-          // Use the user's full name from OAuth as display name
+          // Use the user's full name from OAuth or email signup as display name
           const displayName =
+            user.user_metadata?.display_name ||
             user.user_metadata?.full_name ||
             user.user_metadata?.name ||
             null;
+
+          // If no display name from OAuth, user needs to set one
+          needsDisplayNameSetup = !displayName;
 
           const newProfile: ProfileInsert = {
             id: user.id,
@@ -53,17 +59,24 @@ export async function GET(request: Request) {
 
           await supabase.from("profiles").insert(newProfile as never);
         }
-      }
 
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
+        // Build redirect URL
+        let redirectUrl = next;
+        if (needsDisplayNameSetup) {
+          const separator = next.includes('?') ? '&' : '?';
+          redirectUrl = `${next}${separator}setup=displayname`;
+        }
 
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
+        const forwardedHost = request.headers.get("x-forwarded-host");
+        const isLocalEnv = process.env.NODE_ENV === "development";
+
+        if (isLocalEnv) {
+          return NextResponse.redirect(`${origin}${redirectUrl}`);
+        } else if (forwardedHost) {
+          return NextResponse.redirect(`https://${forwardedHost}${redirectUrl}`);
+        } else {
+          return NextResponse.redirect(`${origin}${redirectUrl}`);
+        }
       }
     }
   }

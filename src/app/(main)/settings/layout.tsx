@@ -21,7 +21,7 @@ export default async function SettingsLayout({
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 flex gap-8">
+    <div className="max-w-6xl md:mx-auto px-4 flex gap-8">
       <Sidebar items={settingsNav} className="sticky top-20 h-fit hidden md:block" />
       <main className="flex-1 py-6 min-w-0">
         {children}
