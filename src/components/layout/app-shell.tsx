@@ -14,12 +14,12 @@ export function AppShell({ children, sidebar, className }: AppShellProps) {
   return (
     <div className={cn("min-h-screen bg-bg-base", className)}>
       {sidebar ? (
-        <div className="max-w-6xl mx-auto px-4 flex gap-8">
+        <div className="max-w-6xl md:mx-auto px-4 flex gap-8">
           {sidebar}
           <main className="flex-1 py-6 min-w-0">{children}</main>
         </div>
       ) : (
-        <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+        <main className="max-w-6xl md:mx-auto px-4 py-6">{children}</main>
       )}
     </div>
   );

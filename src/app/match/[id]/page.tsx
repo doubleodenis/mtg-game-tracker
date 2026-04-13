@@ -81,7 +81,7 @@ export default async function MatchDetailsPage({ params }: PageProps) {
       
       {/* Header */}
       <div className="border-b border-card-border bg-card">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-4xl md:mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-display font-bold text-text-1">
@@ -116,7 +116,7 @@ export default async function MatchDetailsPage({ params }: PageProps) {
       </div>
 
       {/* Main content */}
-      <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-4">
+      <div className="max-w-4xl md:mx-auto px-4 py-8 flex flex-col gap-4">
         {/* Match Preview Card - larger display */}
         {/* <div className="pointer-events-none"> */}
           <MatchPreviewCard match={match} showElo />

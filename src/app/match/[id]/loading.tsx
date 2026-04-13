@@ -8,7 +8,7 @@ export default function MatchDetailLoading() {
       
       {/* Header */}
       <div className="border-b border-card-border bg-card">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+        <div className="max-w-4xl md:mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <Skeleton variant="text" width={160} height={28} />
@@ -24,7 +24,7 @@ export default function MatchDetailLoading() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-4xl md:mx-auto px-4 py-8 space-y-8">
         {/* Match Preview Card Skeleton */}
         <div className="rounded-lg bg-card border border-card-border p-6">
           {/* Header */}
