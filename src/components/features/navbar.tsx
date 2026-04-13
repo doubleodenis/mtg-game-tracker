@@ -88,9 +88,9 @@ export async function Navbar() {
     <header className="sticky top-0 z-50 w-full h-topbar bg-bg-surface/90 backdrop-blur-md border-b border-card-border">
       <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 text-wordmark text-text-1 hover:text-accent transition-colors">
+        <Link href="/" className="flex items-center gap-2 text-wordmark text-text-1 hover:text-accent transition-colors shrink-0">
           <span className="text-accent">⚔️</span>
-          <span>CommandZone</span>
+          <span className="hidden min-[360px]:inline">CommandZone</span>
         </Link>
 
         {/* Search Bar — always visible */}
@@ -99,11 +99,17 @@ export async function Navbar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-3">
+        <nav className="flex items-center gap-1.5 sm:gap-3">
           {user && profile ? (
             <>
-              <Button asChild size="sm">
+              {/* Icon button on mobile, text button on desktop */}
+              <Button asChild size="sm" className="hidden sm:inline-flex">
                 <Link href="/matches/new">New Match</Link>
+              </Button>
+              <Button asChild size="sm" className="sm:hidden !px-2">
+                <Link href="/matches/new" aria-label="New Match">
+                  <PlusIcon className="w-4 h-4" />
+                </Link>
               </Button>
               <FriendDropdown
                 initialFriends={friends}
@@ -144,5 +150,23 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     >
       {children}
     </Link>
+  );
+}
+
+function PlusIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
   );
 }
