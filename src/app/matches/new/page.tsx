@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getFormatSummaries } from "@/lib/supabase/formats";
 import { getActiveDecks } from "@/lib/supabase/decks";
 import { getProfileById } from "@/lib/supabase/profiles";
+import { getUserCollections } from "@/lib/supabase/collections";
 import { PageHeader } from "@/components/layout";
 import { MatchForm } from "@/components/match/match-form";
 
@@ -18,16 +19,18 @@ export default async function NewMatchPage() {
     redirect("/login");
   }
 
-  // Fetch formats, user's decks, and profile in parallel
-  const [formatsResult, decksResult, profileResult] = await Promise.all([
+  // Fetch formats, user's decks, profile, and collections in parallel
+  const [formatsResult, decksResult, profileResult, collectionsResult] = await Promise.all([
     getFormatSummaries(supabase),
     getActiveDecks(supabase, user.id),
     getProfileById(supabase, user.id),
+    getUserCollections(supabase, user.id),
   ]);
 
   const formats = formatsResult.success ? formatsResult.data : [];
   const userDecks = decksResult.success ? decksResult.data : [];
   const profile = profileResult.success ? profileResult.data : null;
+  const collections = collectionsResult.success ? collectionsResult.data : [];
 
   // Build current user search result for "Add yourself" option
   // Fallback to auth user data if profile not found
@@ -54,6 +57,7 @@ export default async function NewMatchPage() {
         currentUserId={user.id}
         currentUserDecks={userDecks}
         currentUser={currentUser}
+        collections={collections}
       />
     </div>
   );

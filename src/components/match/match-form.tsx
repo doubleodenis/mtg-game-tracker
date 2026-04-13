@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { logMatch } from "@/app/actions/match";
 import type { FormatSummary, FormatSlug, MatchData } from "@/types/format";
-import type { DeckSummary, ParticipantInput, ColorIdentity } from "@/types";
+import type { DeckSummary, ParticipantInput, ColorIdentity, CollectionWithMembership } from "@/types";
 
 import { FormatSelector } from "./format-selector";
 import { PlayerSlot } from "./player-slot";
@@ -27,6 +27,7 @@ interface MatchFormProps {
   currentUserId: string;
   currentUserDecks: DeckSummary[];
   currentUser?: SearchResult;
+  collections?: CollectionWithMembership[];
   className?: string;
 }
 
@@ -35,6 +36,7 @@ export function MatchForm({
   currentUserId,
   currentUserDecks,
   currentUser,
+  collections = [],
   className,
 }: MatchFormProps) {
   const router = useRouter();
@@ -49,6 +51,16 @@ export function MatchForm({
     new Date().toISOString().slice(0, 16)
   );
   const [notes, setNotes] = React.useState("");
+  const [selectedCollectionIds, setSelectedCollectionIds] = React.useState<string[]>([]);
+
+  // Toggle collection selection
+  const toggleCollection = (collectionId: string) => {
+    setSelectedCollectionIds((prev) =>
+      prev.includes(collectionId)
+        ? prev.filter((id) => id !== collectionId)
+        : [...prev, collectionId]
+    );
+  };
 
   // Deck cache for other users
   const [userDecks, setUserDecks] = React.useState<
@@ -385,6 +397,7 @@ export function MatchForm({
         matchData: buildMatchData(),
         participants: participantInputs,
         winnerIndices: adjustedWinnerIndices,
+        collectionIds: selectedCollectionIds.length > 0 ? selectedCollectionIds : undefined,
       });
 
       if (!result.success) {
@@ -696,6 +709,75 @@ export function MatchForm({
                 className="w-full h-24 rounded-md px-4 py-2 bg-card border border-card-border text-text-1 placeholder:text-text-2 resize-none focus:outline-none focus:border-accent-ring focus:ring-1 focus:ring-accent-ring"
               />
             </div>
+
+            {/* Collection Selection */}
+            {collections.length > 0 && (
+              <div>
+                <label className="text-sm font-medium text-text-1 block mb-2">
+                  Add to Collections (optional)
+                </label>
+                <div className="space-y-2">
+                  {collections.map((collection) => {
+                    const isSelected = selectedCollectionIds.includes(collection.id);
+                    const isOwner = collection.userRole === "owner";
+                    const canAddDirectly = isOwner || collection.matchAddPermission === "any_member";
+                    
+                    return (
+                      <button
+                        key={collection.id}
+                        type="button"
+                        onClick={() => toggleCollection(collection.id)}
+                        className={cn(
+                          "w-full p-3 rounded-lg border text-left transition-all flex items-center gap-3",
+                          isSelected
+                            ? "bg-accent/10 border-accent/50"
+                            : "bg-card-raised border-card-border hover:border-accent/30"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
+                            isSelected
+                              ? "bg-accent border-accent"
+                              : "border-card-border"
+                          )}
+                        >
+                          {isSelected && (
+                            <svg
+                              className="w-3 h-3 text-text-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={3}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-text-1 truncate">
+                            {collection.name}
+                          </p>
+                          <p className="text-xs text-text-2">
+                            {collection.matchCount} matches · {collection.memberCount} members
+                            {!canAddDirectly && " · Requires approval"}
+                          </p>
+                        </div>
+                        {isOwner && (
+                          <Badge variant="outline" className="shrink-0 text-xs">
+                            Owner
+                          </Badge>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
