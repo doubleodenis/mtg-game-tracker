@@ -115,31 +115,33 @@ function FriendRow({ friend }: { friend: Friend }) {
   }
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3">
-      <Link href={`/player/${friend.username}`}>
-        <Avatar
-          src={friend.avatarUrl}
-          fallback={friend.username}
-          size="md"
-        />
-      </Link>
-
-      <div className="flex-1 min-w-0">
-        <Link
-          href={`/player/${friend.username}`}
-          className="hover:text-accent transition-colors"
-        >
-          <p className="font-medium text-text-1 truncate">
-            {friend.username}
-          </p>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <Link href={`/player/${friend.username}`}>
+          <Avatar
+            src={friend.avatarUrl}
+            fallback={friend.username}
+            size="md"
+          />
         </Link>
-        <p className="text-sm text-text-3">
-          Friends since {new Date(friend.friendsSince).toLocaleDateString()}
-        </p>
+
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/player/${friend.username}`}
+            className="hover:text-accent transition-colors"
+          >
+            <p className="font-medium text-text-1 truncate">
+              {friend.username}
+            </p>
+          </Link>
+          <p className="text-sm text-text-3">
+            Friends since {new Date(friend.friendsSince).toLocaleDateString()}
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" asChild>
+      <div className="flex items-center gap-2 sm:ml-auto">
+        <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
           <Link href={`/player/${friend.username}`}>View Profile</Link>
         </Button>
         <form action={handleRemoveFriend}>
@@ -168,30 +170,32 @@ function FriendRequestRow({ request }: { request: FriendRequest }) {
   }
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3">
-      <Link href={`/player/${request.from.username}`}>
-        <Avatar
-          src={request.from.avatarUrl}
-          fallback={request.from.username}
-          size="md"
-        />
-      </Link>
-
-      <div className="flex-1 min-w-0">
-        <Link
-          href={`/player/${request.from.username}`}
-          className="hover:text-accent transition-colors"
-        >
-          <p className="font-medium text-text-1 truncate">
-            {request.from.username}
-          </p>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <Link href={`/player/${request.from.username}`}>
+          <Avatar
+            src={request.from.avatarUrl}
+            fallback={request.from.username}
+            size="md"
+          />
         </Link>
-        <p className="text-sm text-text-3">
-          Sent {new Date(request.createdAt).toLocaleDateString()}
-        </p>
+
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/player/${request.from.username}`}
+            className="hover:text-accent transition-colors"
+          >
+            <p className="font-medium text-text-1 truncate">
+              {request.from.username}
+            </p>
+          </Link>
+          <p className="text-sm text-text-3">
+            Sent {new Date(request.createdAt).toLocaleDateString()}
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:ml-auto">
         <form action={acceptRequest}>
           <Button type="submit" size="sm">
             Accept
@@ -216,30 +220,32 @@ function OutgoingRequestRow({ request }: { request: OutgoingFriendRequest }) {
   }
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3">
-      <Link href={`/player/${request.to.username}`}>
-        <Avatar
-          src={request.to.avatarUrl}
-          fallback={request.to.username}
-          size="md"
-        />
-      </Link>
-
-      <div className="flex-1 min-w-0">
-        <Link
-          href={`/player/${request.to.username}`}
-          className="hover:text-accent transition-colors"
-        >
-          <p className="font-medium text-text-1 truncate">
-            {request.to.username}
-          </p>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <Link href={`/player/${request.to.username}`}>
+          <Avatar
+            src={request.to.avatarUrl}
+            fallback={request.to.username}
+            size="md"
+          />
         </Link>
-        <p className="text-sm text-text-3">
-          Sent {new Date(request.createdAt).toLocaleDateString()}
-        </p>
+
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/player/${request.to.username}`}
+            className="hover:text-accent transition-colors"
+          >
+            <p className="font-medium text-text-1 truncate">
+              {request.to.username}
+            </p>
+          </Link>
+          <p className="text-sm text-text-3">
+            Sent {new Date(request.createdAt).toLocaleDateString()}
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:ml-auto">
         <Badge variant="outline" className="text-xs">Pending</Badge>
         <form action={cancelRequest}>
           <Button type="submit" variant="ghost" size="sm" className="text-text-2 hover:text-loss">

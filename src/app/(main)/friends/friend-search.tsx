@@ -165,28 +165,30 @@ export function FriendSearch({ currentUserId }: FriendSearchProps) {
             {results.map((result) => (
               <div
                 key={result.id}
-                className="flex items-center gap-4 px-4 py-3"
+                className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3"
               >
-                <Link href={`/player/${result.username}`}>
-                  <Avatar
-                    src={result.avatarUrl}
-                    fallback={result.username}
-                    size="md"
-                  />
-                </Link>
-
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/player/${result.username}`}
-                    className="hover:text-accent transition-colors"
-                  >
-                    <p className="font-medium text-text-1 truncate">
-                      {result.username}
-                    </p>
+                <div className="flex items-center gap-3 min-w-0">
+                  <Link href={`/player/${result.username}`}>
+                    <Avatar
+                      src={result.avatarUrl}
+                      fallback={result.username}
+                      size="md"
+                    />
                   </Link>
+
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/player/${result.username}`}
+                      className="hover:text-accent transition-colors"
+                    >
+                      <p className="font-medium text-text-1 truncate">
+                        {result.username}
+                      </p>
+                    </Link>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:ml-auto">
                   {result.friendshipStatus === "accepted" ? (
                     <span className="text-sm text-win font-medium">Friends</span>
                   ) : result.isOutgoing ? (
@@ -197,7 +199,7 @@ export function FriendSearch({ currentUserId }: FriendSearchProps) {
                       onClick={() => handleAcceptRequest(result.id, result.friendshipId!)}
                       disabled={acceptingFrom === result.id}
                     >
-                      {acceptingFrom === result.id ? "Accepting..." : "Accept Request"}
+                      {acceptingFrom === result.id ? "Accepting..." : "Accept"}
                     </Button>
                   ) : (
                     <Button
