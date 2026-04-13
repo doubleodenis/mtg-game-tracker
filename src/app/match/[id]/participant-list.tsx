@@ -69,20 +69,22 @@ export function ParticipantList({
           return (
             <div
               key={participant.id}
-              className="flex items-center justify-between py-3 border-b border-card-border last:border-0"
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 py-3 border-b border-card-border last:border-0"
             >
+              {/* Profile info */}
               <div className="flex items-center gap-3">
-                <span className="text-sm text-text-3 w-6">#{index + 1}</span>
+                <span className="text-sm text-text-3 w-6 shrink-0">#{index + 1}</span>
                 <Avatar
                   src={participant.avatarUrl}
                   alt={participant.name}
                   fallback={participant.name}
                   size="lg"
+                  className="!h-10 !w-10 sm:!h-14 sm:!w-14 shrink-0"
                 />
-                <div>
-                  <p className="font-medium text-text-1">{participant.name}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-text-1 truncate">{participant.name}</p>
                   {participant.deck && (
-                    <p className="text-sm text-text-3">
+                    <p className="text-sm text-text-3 truncate">
                       {participant.deck.commanderName || "Unknown Commander"}
                       {hasPlaceholderDeck && canUpdateDeck && (
                         <span className="text-accent ml-1">(placeholder)</span>
@@ -91,7 +93,9 @@ export function ParticipantList({
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Badges and actions - stacks below on mobile */}
+              <div className="flex items-center gap-2 pl-9 sm:pl-0 flex-wrap">
                 {/* Rating delta for confirmed participants */}
                 {participant.ratingDelta && (
                   <RatingDelta delta={participant.ratingDelta.delta} size="md" />
