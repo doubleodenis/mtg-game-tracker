@@ -39,8 +39,6 @@ jobs:
         with:
           version: latest
       
-      - run: supabase init
-
       - name: Start Supabase locally
         run: supabase start
       
